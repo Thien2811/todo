@@ -94,14 +94,19 @@
       style="position: absolute; right: 10px"
     >
       <q-list>
-        <q-item clickable @click="orderBy(0)" v-close-popup>
+        <q-item clickable @click="orderBy('prio')" v-close-popup>
           <q-item-section>
             <q-item-label>Priorität</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable @click="orderBy(1)" v-close-popup>
+        <q-item clickable @click="orderBy('date')" v-close-popup>
           <q-item-section>
             <q-item-label>Datum</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable @click="orderBy('alpha')" v-close-popup>
+          <q-item-section>
+            <q-item-label>Alphabetisch</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -109,14 +114,10 @@
   </div>
   <div>
     <TaskComponent
-      v-for="(task, index) of tasks"
-      :key="index"
-      :taskname="task.taskname"
-      :description="task.description"
-      :user="task.user"
-      :date="task.date"
-      :priority="task.priority"
-      @delete="remove(index)"
+      v-for="task of tasks"
+      :key="task.id"
+      :task="task"
+      @delete="remove(task)"
     ></TaskComponent>
   </div>
 </template>
@@ -126,6 +127,7 @@ import { onMounted, ref, Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import TaskComponent from 'src/components/TaskComponent.vue';
 import axios from 'axios';
+import { Task } from 'src/types/types';
 
 const router = useRoute();
 const url: string = router.query.listname?.toString() ?? '';
@@ -136,15 +138,6 @@ onMounted(async () => {
     tasks.value.push(el);
   });
 });
-
-type Task = {
-  listname: string;
-  taskname: string;
-  description: string;
-  user: string;
-  date: string;
-  priority: string;
-};
 
 const prompt = ref(false);
 const tasks = ref<Task[]>([]);
@@ -157,7 +150,8 @@ const priority: Ref<string> = ref('Priorität');
 const prio: string[] = ['Hoch', 'Mittel', 'Niedrig'];
 
 async function addNewTask(): Promise<void> {
-  const task = {
+  const task: Task = {
+    id: 0,
     listname: url,
     taskname: taskname.value,
     description: description.value,
@@ -165,21 +159,40 @@ async function addNewTask(): Promise<void> {
     date: date.value,
     priority: priority.value,
   };
+  const res = await axios.post('/addtask', { task });
+  task.id = res.data.insertId;
   tasks.value.push(task);
-
-  await axios.post('/addtask', { task });
 }
 
-function orderBy(by: number) {
-  tasks.value = by
-    ? tasks.value.sort(
-        (a: Task, b: Task) =>
-          +new Date(a.date.split('.').reverse().join('-')) -
-          +new Date(b.date.split('.').reverse().join('-'))
-      )
-    : tasks.value.sort(
+function orderBy(by: string) {
+  console.log(by);
+  tasks.value =
+    {
+      prio: tasks.value.sort(
         (a: Task, b: Task) => getPrio(b.priority) - getPrio(a.priority)
-      );
+      ),
+      date: tasks.value.sort(
+        (a: Task, b: Task) =>
+          +new Date(a.date?.split('.').reverse().join('-')) -
+          +new Date(b.date?.split('.').reverse().join('-'))
+      ),
+      alpha: tasks.value.sort((a: Task, b: Task) =>
+        a.taskname.localeCompare(b.taskname)
+      ),
+    }[by] ??
+    tasks.value.sort((a: Task, b: Task) =>
+      a.taskname.localeCompare(b.taskname)
+    );
+
+  // tasks.value = by
+  //   ? tasks.value.sort(
+  //       (a: Task, b: Task) =>
+  //         +new Date(a.date.split('.').reverse().join('-')) -
+  //         +new Date(b.date.split('.').reverse().join('-'))
+  //     )
+  //   : tasks.value.sort(
+  //       (a: Task, b: Task) => getPrio(b.priority) - getPrio(a.priority)
+  //     );
 }
 
 function getPrio(priority: string): number {
@@ -193,9 +206,9 @@ function getPrio(priority: string): number {
   return prio;
 }
 
-function remove(deleteTask: number): void {
-  // const index = tasks.value.findIndex((el) => el.taskname === deleteTask);
-  tasks.value.splice(deleteTask, 1);
+function remove(task: Task): void {
+  const index = tasks.value.findIndex((el) => el.id === task.id);
+  tasks.value.splice(index, 1);
 }
 </script>
 

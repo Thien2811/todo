@@ -1,3 +1,9 @@
-// export type Task = {
-//   [name: string, description: string, user: string, date?: Date];
-// };
+export type Task = {
+  id: number;
+  listname: string;
+  taskname: string;
+  description: string;
+  user: string;
+  date: string;
+  priority: string;
+};
