@@ -33,7 +33,12 @@
                 </q-item-section>
               </q-item>
 
-              <q-item clickable v-close-popup v-if="!loginstatus">
+              <q-item
+                clickable
+                v-close-popup
+                v-if="!loginstatus"
+                @click="moveToLogin"
+              >
                 <q-item-section>
                   <q-item-label>Ausloggen</q-item-label>
                 </q-item-section>
@@ -78,9 +83,13 @@ import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 
 const router = useRouter();
-const loginstatus = ref(true);
+const loginstatus = ref<boolean>(true);
 
 function moveToAllLists(): void {
+  router.push('/createList');
+}
+
+function moveToLogin(): void {
   router.push('/');
 }
 

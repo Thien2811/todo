@@ -167,6 +167,7 @@ async function addNewTask(): Promise<void> {
 }
 
 function orderBy(by: string) {
+  console.log(by);
   tasks.value =
     {
       prio: tasks.value.sort(
@@ -184,6 +185,8 @@ function orderBy(by: string) {
     tasks.value.sort((a: Task, b: Task) =>
       a.taskname.localeCompare(b.taskname)
     );
+
+  console.log(tasks.value);
 }
 
 function getPrio(priority: string): number {
