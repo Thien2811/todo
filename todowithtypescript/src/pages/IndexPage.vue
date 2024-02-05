@@ -15,63 +15,49 @@
       icon="add"
     ></q-btn>
   </div>
-  <tr
-    class="listeneintrag"
-    v-for="(list, index) of lists"
-    :key="index"
+  <ListnameComponent
+    v-for="list of lists"
+    :key="list.uuid"
     :list="list"
-  >
-    {{
-      list
-    }}
-
-    <q-btn
-      class="button"
-      color="primary"
-      icon="shortcut"
-      @click="moveToList(list)"
-    ></q-btn>
-    <q-btn
-      class="button"
-      color="primary"
-      icon="delete"
-      @click="removeList(list)"
-    ></q-btn>
-  </tr>
+    @delete="removeList($event)"
+  ></ListnameComponent>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import ListnameComponent from 'src/components/ListnameComponent.vue';
 
-import { useRouter } from 'vue-router';
 import axios from 'axios';
+
+import { v4 as uuidv4 } from 'uuid';
+
+type List = {
+  uuid: string;
+  listname: string;
+};
 
 onMounted(async () => {
   const res = await axios.get('getlistnames');
-  res.data.forEach((element: { listname: string }) => {
-    lists.value.push(element.listname);
+  res.data.forEach((element: List) => {
+    lists.value.push(element);
   });
 });
 
-const router = useRouter();
-
 const listname = ref('');
-const lists = ref<string[]>([]);
+const lists = ref<List[]>([]);
 
 async function addNewList(): Promise<void> {
-  lists.value.push(listname.value);
-  await axios.post('/addlist', { name: listname.value });
+  lists.value.push({ uuid: uuidv4(), listname: listname.value });
+  await axios.post('/addlist', { list: lists.value.slice(-1) ?? lists.value });
 }
 
 async function removeList(searchValue: string): Promise<void> {
-  const index = lists.value.findIndex((el) => el == searchValue);
+  const index = lists.value.findIndex((el: List) => {
+    return el.uuid === searchValue;
+  });
   const deletedList = lists.value.splice(index, 1);
-  await axios.delete(`/deletelist/${deletedList}`);
-}
-
-function moveToList(direction: string): string {
-  router.push({ path: '/list', query: { listname: `${direction}` } });
-  return direction;
+  const deletedListname = deletedList[0].listname;
+  await axios.delete(`/deletelist/${deletedListname}`);
 }
 </script>
 
@@ -97,7 +83,8 @@ h1 {
   border-radius: 10px;
 }
 
-.button {
+.listenbutton {
   margin-left: auto;
+  margin-right: 0;
 }
 </style>

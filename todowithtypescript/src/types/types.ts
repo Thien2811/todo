@@ -6,4 +6,5 @@ export type Task = {
   user: string;
   date: string;
   priority: string;
+  uuid: string;
 };

@@ -59,12 +59,6 @@
             icon="format_list_numbered"
           />
         </div>
-        <div class="button">
-          <q-btn size="150%" standout color="primary" icon="playlist_add" />
-        </div>
-        <div class="button">
-          <q-btn size="150%" standout color="primary" icon="check" />
-        </div>
       </q-drawer>
 
       <q-page-container>

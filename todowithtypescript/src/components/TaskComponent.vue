@@ -63,8 +63,6 @@ const props = defineProps(['task']);
 const task = toRef<Task>(props.task);
 const progress = ref<number>();
 const editMode = ref<boolean>(false);
-// const taskname = ref<string>(task.value.taskname);
-// const description = ref<string>(task.value.description);
 
 const emits = defineEmits(['delete', 'edit']);
 
@@ -83,8 +81,16 @@ async function editTask(): Promise<void> {
   return new Promise(async (resolve) => {
     editMode.value = !editMode.value;
     if (!editMode.value) {
-      const { id, priority, date, user, description, listname, taskname } =
-        task.value;
+      const {
+        id,
+        priority,
+        date,
+        user,
+        description,
+        listname,
+        taskname,
+        uuid,
+      } = task.value;
       const t: Task = {
         id,
         taskname,
@@ -93,6 +99,7 @@ async function editTask(): Promise<void> {
         user,
         date,
         priority,
+        uuid,
       };
       await axios.post('/save', { task: t });
       resolve();

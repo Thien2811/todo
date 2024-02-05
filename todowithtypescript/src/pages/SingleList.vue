@@ -8,7 +8,7 @@
           width: 1300px;
           max-width: 70vw;
           height: 470px;
-          background-color: #89cff0;
+          background-color: dodgerblue;
         "
       >
         <q-card-section>
@@ -131,6 +131,7 @@ import { Task } from 'src/types/types';
 
 const router = useRoute();
 const url: string = router.query.listname?.toString() ?? '';
+const uuid: string = router.query.uuid?.toString() ?? '';
 
 onMounted(async () => {
   const res = await axios.post('/gettasks', { url });
@@ -158,6 +159,7 @@ async function addNewTask(): Promise<void> {
     user: taggedUser.value,
     date: date.value,
     priority: priority.value,
+    uuid: uuid,
   };
   const res = await axios.post('/addtask', { task });
   task.id = res.data.insertId;
@@ -165,7 +167,6 @@ async function addNewTask(): Promise<void> {
 }
 
 function orderBy(by: string) {
-  console.log(by);
   tasks.value =
     {
       prio: tasks.value.sort(
@@ -183,16 +184,6 @@ function orderBy(by: string) {
     tasks.value.sort((a: Task, b: Task) =>
       a.taskname.localeCompare(b.taskname)
     );
-
-  // tasks.value = by
-  //   ? tasks.value.sort(
-  //       (a: Task, b: Task) =>
-  //         +new Date(a.date.split('.').reverse().join('-')) -
-  //         +new Date(b.date.split('.').reverse().join('-'))
-  //     )
-  //   : tasks.value.sort(
-  //       (a: Task, b: Task) => getPrio(b.priority) - getPrio(a.priority)
-  //     );
 }
 
 function getPrio(priority: string): number {
