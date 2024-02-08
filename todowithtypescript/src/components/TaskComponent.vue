@@ -1,18 +1,18 @@
 <template>
   <div class="taskbox" :style="borderColor(task.priority)">
     <q-btn
-      @click="editTask()"
-      color="white"
-      icon="edit"
-      flat
-      style="position: absolute; right: 600px"
-    ></q-btn>
-    <q-btn
-      color="white"
+      color="#db7093"
       icon="delete"
       flat
-      style="position: absolute; right: 550px"
       @click="remove"
+      class="float-right"
+    ></q-btn>
+    <q-btn
+      @click="editTask()"
+      color="#db7093"
+      icon="edit"
+      flat
+      class="float-right"
     ></q-btn>
     <div v-if="!editMode">Aufgabe: {{ task.taskname }}</div>
     <div v-if="editMode">
@@ -32,6 +32,7 @@
         dense
         v-model="task.description"
         bg-color="white"
+        db7093
         standout
         filled
         label="Aufgabenbeschreibung"
@@ -39,7 +40,7 @@
       ></q-input>
     </div>
     <div>Zugehörige Person: {{ task.user }}</div>
-    <div>Fälligkeitsdatum: {{ task.date }}</div>
+    <div>Fälligkeitsdatum: {{ task.datum }}</div>
     <div>Priorität: {{ task.priority }}</div>
     <div v-if="!editMode">
       <q-slider
@@ -69,9 +70,9 @@ const emits = defineEmits(['delete', 'edit']);
 function borderColor(priority: string): string {
   let prio: string =
     {
-      Hoch: 'border: 3px solid red;',
-      Mittel: 'border: 3px solid orange;',
-      Niedrig: 'border: 3px solid green;',
+      Hoch: 'border: 5px solid red;',
+      Mittel: 'border: 5px solid orange;',
+      Niedrig: 'border: 5px solid green;',
     }[priority] ?? 'border: 3px solid white;';
 
   return prio;
@@ -84,7 +85,7 @@ async function editTask(): Promise<void> {
       const {
         id,
         priority,
-        date,
+        datum,
         user,
         description,
         listname,
@@ -97,7 +98,7 @@ async function editTask(): Promise<void> {
         listname,
         description,
         user,
-        date,
+        datum,
         priority,
         uuid,
       };
@@ -121,12 +122,13 @@ async function remove() {
   padding: 15px;
   border-radius: 8px;
   margin-top: 15px;
-  background-color: black;
+  background-color: #fff0f5;
+  opacity: 0.9;
 }
 
 div {
   margin: 5px;
-  color: white;
+  color: #db7093;
   font-weight: bold;
 }
 </style>

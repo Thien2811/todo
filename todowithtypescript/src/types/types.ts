@@ -4,7 +4,7 @@ export type Task = {
   taskname: string;
   description: string;
   user: string;
-  date: string;
+  datum: string;
   priority: string;
   uuid: string;
 };

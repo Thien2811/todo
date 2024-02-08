@@ -1,6 +1,29 @@
 <template>
-  <tr class="listeneintrag">
-    <div v-if="!editMode">{{ list.listname }}</div>
+  <div class="listeneintrag" @click="moveToList(list.listname)">
+    <div class="inline bg-amber rounded-borders" style="max-width: 300px">
+      <div
+        v-if="!editMode"
+        class="fit flex flex-center text-center non-selectable q-pa-md"
+        style="background-color: #141010; opacity: 1"
+      >
+        {{ list.listname }}
+      </div>
+
+      <q-menu touch-position context-menu>
+        <q-list style="min-width: 100px">
+          <q-item clickable v-close-popup>
+            <q-item-section @click="removeList(list.uuid)"
+              >Liste löschen</q-item-section
+            >
+          </q-item>
+          <q-item clickable v-close-popup>
+            <q-item-section @click="editListname"
+              >Listennamen bearbeiten</q-item-section
+            >
+          </q-item>
+        </q-list>
+      </q-menu>
+    </div>
     <q-input
       v-if="editMode"
       v-model="list.listname"
@@ -8,37 +31,9 @@
       bg-color="white"
       filled
       label="Neuer Listenname"
+      @keyup.enter="editListname"
     ></q-input>
-    <div style="margin-left: auto; margin-right: 0">
-      <q-btn
-        size="25px"
-        v-if="!editMode"
-        color="primary"
-        icon="edit"
-        @click="editListname()"
-      ></q-btn>
-      <q-btn
-        size="25px"
-        v-if="editMode"
-        color="primary"
-        icon="save"
-        @click="editListname()"
-      ></q-btn>
-      <q-btn
-        size="25px"
-        color="primary"
-        icon="shortcut"
-        @click="moveToList(list.listname)"
-      ></q-btn>
-      <q-btn
-        size="25px"
-        class="listenbutton"
-        color="primary"
-        icon="delete"
-        @click="removeList(list.uuid)"
-      ></q-btn>
-    </div>
-  </tr>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -60,8 +55,9 @@ async function removeList(searchValue: string): Promise<void> {
 
 function moveToList(direction: string): string {
   router.push({
-    path: '/list',
-    query: { listname: `${direction}`, uuid: props.list.uuid },
+    name: 'list',
+    params: { listname: direction, uuid: props.list.uuid },
+    // query: { listname: direction, uuid: props.list.uuid },
   });
   return direction;
 }
@@ -79,11 +75,10 @@ async function editListname() {
 
 <style scoped>
 .listeneintrag {
-  font-size: 300%;
-  display: flex;
-  background-color: white;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 10px;
+  width: 90%;
+  display: block;
+  padding: 2px;
+  color: white;
+  margin: 7px;
 }
 </style>

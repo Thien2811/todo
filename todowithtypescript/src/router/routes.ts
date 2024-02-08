@@ -12,14 +12,14 @@ const routes: RouteRecordRaw[] = [
     component: () => import('pages/LoginView.vue'),
   },
   {
+    name: 'list',
+    path: '/list/:listname/:uuid',
+    component: () => import('pages/SingleList.vue'),
+  },
+  {
     name: 'register',
     path: '/register',
     component: () => import('pages/RegisterView.vue'),
-  },
-  {
-    name: 'List',
-    path: '/list',
-    component: () => import('pages/SingleList.vue'),
   },
 ];
 
