@@ -3,6 +3,7 @@
     v-if="progress != 100"
     class="taskbox"
     :style="borderColor(task.priority)"
+    @click="openDrawer"
   >
     <q-btn
       color="#db7093"
@@ -11,50 +12,21 @@
       @click="remove"
       class="float-right"
     ></q-btn>
-    <q-btn
-      @click="editTask()"
-      color="#db7093"
-      icon="edit"
-      flat
-      class="float-right"
-    ></q-btn>
+
     <div v-if="!editMode">Aufgabe: {{ task.taskname }}</div>
-    <div v-if="editMode">
-      <q-input
-        dense
-        v-model="task.taskname"
-        bg-color="white"
-        standout
-        filled
-        label="Taskname"
-        style="width: 500px"
-      ></q-input>
-    </div>
-    <div v-if="!editMode">Aufgabenbeschreibung: {{ task.description }}</div>
-    <div v-if="editMode">
-      <q-input
-        dense
-        v-model="task.description"
-        bg-color="white"
-        db7093
-        standout
-        filled
-        label="Aufgabenbeschreibung"
-        style="width: 500px"
-      ></q-input>
-    </div>
-    <div>Zugehörige Person: {{ task.user }}</div>
+
     <div>Fälligkeitsdatum: {{ task.datum }}</div>
-    <div>Priorität: {{ task.priority }}</div>
+
     <div v-if="!editMode">
+      Fortschritt: {{ progress }}%
       <q-slider
         v-model="progress"
         :min="0"
         :max="100"
         :step="25"
-        color="primary"
+        color="pink"
         dark
-      />Fortschritt: {{ progress }}%
+      />
     </div>
     <div>
       <q-chip color="white" v-for="tag of task.tags" :key="tag"
@@ -66,7 +38,7 @@
     <q-card>
       <q-card-section class="row items-center">
         <span class="q-ml-sm" style="color: black"
-          >Dein Fortschritt ist auf 100%. Mdb7093öchtest du deine Task
+          >Dein Fortschritt ist auf 100%. Möchtest du deine Task
           abschließen?</span
         >
       </q-card-section>
@@ -93,7 +65,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { Task } from 'src/types/types';
-import { onMounted, toRef } from 'vue';
+import { toRef } from 'vue';
 import { ref, watch } from 'vue';
 
 const props = defineProps(['task']);
@@ -103,13 +75,12 @@ const progress = ref<number>();
 const editMode = ref<boolean>(false);
 const confirm = ref<boolean>(false);
 
-const emits = defineEmits(['delete', 'edit']);
+const emits = defineEmits(['delete', 'edit', 'opendrawer']);
 
 watch(progress, async (newProgress) => {
   console.log(newProgress);
   console.log(props.task.tags);
   if (newProgress == 100) {
-    console.log('success');
     confirm.value = true;
   }
 });
@@ -165,13 +136,17 @@ async function remove() {
   await axios.delete(`/task/${task.value.id}`);
   emits('delete');
 }
+
+function openDrawer() {
+  emits('opendrawer');
+}
 </script>
 
 <style scoped>
 .taskbox {
   margin: auto;
   width: 50%;
-  height: 270px;
+
   padding: 15px;
   border-radius: 8px;
   margin-top: 15px;

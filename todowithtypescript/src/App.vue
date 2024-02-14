@@ -4,6 +4,7 @@
       <q-toolbar>
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
         <q-toolbar-title>ToDo</q-toolbar-title>
+        <q-btn class="float-right" icon="download" @click="download"></q-btn>
       </q-toolbar>
     </q-header>
 
@@ -132,6 +133,21 @@ function loadDueTodayTask() {
 
 function loadFinishedTask() {
   router.push('/finishedtask');
+}
+
+async function download() {
+  const title = 'KAKDNASKDAKNLSD';
+  const databaseInfo = await axios.get('/download');
+  const url = window.URL.createObjectURL(
+    new Blob([JSON.stringify(databaseInfo.data, null, '\t')], {
+      type: 'application/json',
+    })
+  );
+  console.log(url);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', title);
+  link.click();
 }
 </script>
 

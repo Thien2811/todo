@@ -86,7 +86,7 @@
         </div>
         <div class="drawerelement">
           <q-input
-            v-model="taskname"
+            v-model="focusTask.taskname"
             filled
             standout
             label="Taskname"
@@ -95,7 +95,7 @@
         <div class="drawerelement">
           <q-input
             type="textarea"
-            v-model="description"
+            v-model="focusTask.description"
             standout
             filled
             label="Beschreibung"
@@ -106,7 +106,7 @@
             <q-select
               class="input"
               standout
-              v-model="taggedUser"
+              v-model="focusTask.user"
               :options="users"
               label="Zugehörige Person"
               filled
@@ -115,7 +115,7 @@
           <div>
             <q-select
               standout
-              v-model="priority"
+              v-model="focusTask.priority"
               label="Priorität"
               :options="prio"
               filled
@@ -123,13 +123,7 @@
           </div>
         </div>
         <div class="drawerelement">
-          <q-input
-            filled
-            v-model="date"
-            mask="date"
-            :rules="['date']"
-            label="Datum"
-          >
+          <q-input filled v-model="focusTask.datum" label="Datum">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy
@@ -137,7 +131,7 @@
                   transition-show="scale"
                   transition-hide="scale"
                 >
-                  <q-date v-model="date">
+                  <q-date v-model="focusTask.datum" mask="DD.MM.YYYY">
                     <div class="row items-center justify-end">
                       <q-btn v-close-popup label="Close" color="primary" flat />
                     </div>
@@ -147,6 +141,7 @@
             </template>
           </q-input>
         </div>
+
         <div
           class="drawerelement"
           style="display: flex; justify-content: center"
@@ -156,7 +151,7 @@
             text-color="black"
             color="white"
             label="Bestätigen"
-            @click="addNewTask"
+            @click="saveTask"
           />
         </div>
       </div>
@@ -169,6 +164,10 @@
       :key="task.id"
       :task="task"
       @delete="remove(task)"
+      @opendrawer="
+        drawerRight = true;
+        focusTask = task;
+      "
     ></TaskComponent>
   </div>
 </template>
@@ -198,6 +197,18 @@ const priority: Ref<string> = ref('Priorität');
 const prio: string[] = ['Hoch', 'Mittel', 'Niedrig'];
 const prompt = ref<boolean>(false);
 
+const focusTask = ref<Task>({
+  datum: '',
+  description: '',
+  id: 0,
+  listname: '',
+  priority: '',
+  tags: [],
+  taskname: '',
+  user: '',
+  uuid: '',
+});
+
 onMounted(async () => {
   loadTask();
 });
@@ -219,8 +230,15 @@ async function loadTask() {
       const tags = await axios.get(`/tags/${res.data[i].id}`);
       res.data[i].tags = tags.data;
       tasks.value.push(res.data[i]);
+      // focusTask.value.description = tasks.value[i].description;
+      // focusTask.value.taskname = tasks.value[i].taskname;
+      // focusTask.value.user = tasks.value[i].user;
+      // focusTask.value.priority = tasks.value[i].priority;
+      // focusTask.value.datum = tasks.value[i].datum;
     }
   }
+
+  console.log(tasks.value);
 }
 
 //
@@ -307,6 +325,22 @@ function getPrio(priority: string): number {
 function remove(task: Task): void {
   const index = tasks.value.findIndex((el) => el.id === task.id);
   tasks.value.splice(index, 1);
+}
+
+async function saveTask() {
+  const newTask: Task = {
+    id: focusTask.value.id,
+    listname: router.params.listname as string,
+    taskname: focusTask.value.taskname,
+    description: focusTask.value.description,
+    user: focusTask.value.user,
+    datum: focusTask.value.datum,
+    priority: focusTask.value.priority,
+    uuid: focusTask.value.uuid,
+    tags: [],
+  };
+  await axios.post('/addtaskinfo', newTask);
+  drawerRight.value = false;
 }
 </script>
 
