@@ -1,0 +1,1 @@
+Stand 08.02.2024: Task laden funktioniert noch nicht wie gewollt, die Task der ersten Liste werden nie geladen, auch wenn Task vorhanden sind, erst wenn man eine andere Liste anklickt und dann zurückgeht werden die Tasks geladen
