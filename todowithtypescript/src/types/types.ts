@@ -7,4 +7,9 @@ export type Task = {
   datum: string;
   priority: string;
   uuid: string;
+  tags: {
+    id?: number;
+    tagname?: string;
+    taskid?: number;
+  }[];
 };

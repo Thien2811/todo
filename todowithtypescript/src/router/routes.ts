@@ -21,6 +21,16 @@ const routes: RouteRecordRaw[] = [
     path: '/register',
     component: () => import('pages/RegisterView.vue'),
   },
+  {
+    name: 'duetoday',
+    path: '/duetoday',
+    component: () => import('pages/DueTodayView.vue'),
+  },
+  {
+    name: 'finishedtask',
+    path: '/finishedtask',
+    component: () => import('pages/CompletedTaskView.vue'),
+  },
 ];
 
 export default routes;

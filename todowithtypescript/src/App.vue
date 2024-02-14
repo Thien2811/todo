@@ -23,6 +23,13 @@
         >
           Meine Listen
         </div>
+        <div class="permlist text-center" @click="loadDueTodayTask">
+          Heute fällig
+        </div>
+        <div class="permlist text-center" @click="loadFinishedTask">
+          Abgeschlossen
+        </div>
+
         <div>
           <q-btn
             @click="prompt = true"
@@ -86,14 +93,18 @@ import { ref, onMounted } from 'vue';
 import ListnameComponent from 'src/components/ListnameComponent.vue';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-
-const drawer = ref<boolean>(false);
+import { useRouter } from 'vue-router';
 
 type List = {
   uuid: string;
   listname: string;
 };
 
+const router = useRouter();
+const drawer = ref<boolean>(false);
+const listname = ref('');
+const lists = ref<List[]>([]);
+const prompt = ref<boolean>(false);
 onMounted(async () => {
   const res = await axios.get('getlistnames');
   res.data.forEach((element: List) => {
@@ -101,26 +112,26 @@ onMounted(async () => {
   });
 });
 
-const listname = ref('');
-const lists = ref<List[]>([]);
-const prompt = ref<boolean>(false);
-
 async function addNewList(): Promise<void> {
   lists.value.push({ uuid: uuidv4(), listname: listname.value });
   await axios.post('/addlist', { list: lists.value.slice(-1) ?? lists.value });
-  console.log('tasks', lists.value);
 }
 
 async function removeList(searchValue: string): Promise<void> {
-  console.log('vorher', lists.value);
   const index = lists.value.findIndex((el: List) => {
-    console.log(el.uuid, searchValue);
     return el.uuid === searchValue;
   });
   const deletedList = lists.value.splice(index, 1);
   const deletedListname = deletedList[0].listname;
   await axios.delete(`/deletelist/${deletedListname}`);
-  console.log('nachher', lists.value);
+}
+
+function loadDueTodayTask() {
+  router.push('/duetoday');
+}
+
+function loadFinishedTask() {
+  router.push('/finishedtask');
 }
 </script>
 
@@ -149,5 +160,12 @@ async function removeList(searchValue: string): Promise<void> {
 body {
   background-image: url('./pictures/download.png');
   background-size: cover;
+}
+
+.permlist {
+  background-color: black;
+  color: white;
+  margin: 13px;
+  padding: 14px;
 }
 </style>

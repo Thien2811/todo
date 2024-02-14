@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="progress != 100"
-    class="taskbox"
-    :style="borderColor(task.priority)"
-  >
+  <div class="taskbox" :style="borderColor(task.priority)">
     <q-btn
       color="#db7093"
       icon="delete"
@@ -18,6 +14,17 @@
       flat
       class="float-right"
     ></q-btn>
+    <div v-if="!editMode" style="font-size: 150%">{{ task.listname }}</div>
+    <div v-if="editMode">
+      <q-input
+        dense
+        v-model="task.listname"
+        bg-color="white"
+        standout
+        filled
+        label="Listenname"
+      ></q-input>
+    </div>
     <div v-if="!editMode">Aufgabe: {{ task.taskname }}</div>
     <div v-if="editMode">
       <q-input
@@ -30,93 +37,21 @@
         style="width: 500px"
       ></q-input>
     </div>
-    <div v-if="!editMode">Aufgabenbeschreibung: {{ task.description }}</div>
-    <div v-if="editMode">
-      <q-input
-        dense
-        v-model="task.description"
-        bg-color="white"
-        db7093
-        standout
-        filled
-        label="Aufgabenbeschreibung"
-        style="width: 500px"
-      ></q-input>
-    </div>
-    <div>Zugehörige Person: {{ task.user }}</div>
-    <div>Fälligkeitsdatum: {{ task.datum }}</div>
-    <div>Priorität: {{ task.priority }}</div>
-    <div v-if="!editMode">
-      <q-slider
-        v-model="progress"
-        :min="0"
-        :max="100"
-        :step="25"
-        color="primary"
-        dark
-      />Fortschritt: {{ progress }}%
-    </div>
-    <div>
-      <q-chip color="white" v-for="tag of task.tags" :key="tag"
-        >#{{ tag.tagname }}</q-chip
-      >
-    </div>
-  </div>
-  <q-dialog v-model="confirm" persistent>
-    <q-card>
-      <q-card-section class="row items-center">
-        <span class="q-ml-sm" style="color: black"
-          >Dein Fortschritt ist auf 100%. Mdb7093öchtest du deine Task
-          abschließen?</span
-        >
-      </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          label="Nein"
-          color="#fff0f5"
-          v-close-popup
-          @click="progress = 75"
-        />
-        <q-btn
-          flat
-          label="Ja"
-          color="#fff0f5"
-          v-close-popup
-          @click="confirmProgress"
-        /> </q-card-actions
-      >db7093
-    </q-card>
-  </q-dialog>
+    <div>Zugehörige Person: {{ task.user }}</div>
+  </div>
 </template>
 <script setup lang="ts">
 import axios from 'axios';
 import { Task } from 'src/types/types';
-import { onMounted, toRef } from 'vue';
-import { ref, watch } from 'vue';
-
+import { toRef } from 'vue';
+import { ref } from 'vue';
 const props = defineProps(['task']);
 
 const task = toRef<Task>(props.task);
-const progress = ref<number>();
 const editMode = ref<boolean>(false);
-const confirm = ref<boolean>(false);
 
 const emits = defineEmits(['delete', 'edit']);
-
-watch(progress, async (newProgress) => {
-  console.log(newProgress);
-  console.log(props.task.tags);
-  if (newProgress == 100) {
-    console.log('success');
-    confirm.value = true;
-  }
-});
-
-async function confirmProgress() {
-  await axios.post('/updateprio', { taskname: task.value.taskname });
-}
 
 function borderColor(priority: string): string {
   let prio: string =
@@ -142,7 +77,6 @@ async function editTask(): Promise<void> {
         listname,
         taskname,
         uuid,
-        tags,
       } = task.value;
       const t: Task = {
         id,
@@ -153,7 +87,6 @@ async function editTask(): Promise<void> {
         datum,
         priority,
         uuid,
-        tags,
       };
       await axios.post('/save', { task: t });
       resolve();
@@ -171,7 +104,6 @@ async function remove() {
 .taskbox {
   margin: auto;
   width: 50%;
-  height: 270px;
   padding: 15px;
   border-radius: 8px;
   margin-top: 15px;

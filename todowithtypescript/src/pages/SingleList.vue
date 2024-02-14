@@ -10,7 +10,7 @@
         opacity: 0.9;
         margin-left: 20px;
       "
-      @click="drawerRight = !drawerRight"
+      @click="prompt = !prompt"
       label="Task hinzufügen"
     />
     <q-btn-dropdown
@@ -42,6 +42,29 @@
         </q-item>
       </q-list>
     </q-btn-dropdown>
+
+    <q-dialog v-model="prompt" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Taskname (ggf. #Tags, @Datum)</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input
+            dense
+            v-model="taskname"
+            autofocus
+            @keyup.enter="prompt = false"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Abbrechen" v-close-popup />
+          <q-btn flat label="Bestätigen" v-close-popup @click="addNewTask()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-drawer
       side="right"
       v-model="drawerRight"
@@ -151,27 +174,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch } from 'vue';
+import { ref, Ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import TaskComponent from 'src/components/TaskComponent.vue';
 import axios from 'axios';
 import { Task } from 'src/types/types';
+import dayjs from 'dayjs';
+import parsePlugin from 'dayjs-parser';
+
+dayjs.extend(parsePlugin);
+dayjs.locale('de');
 
 const router = useRoute();
 const uuid: string = router.params.uuid?.toString() ?? '';
-
-watch(useRouter().currentRoute, async () => {
-  tasks.value = [];
-  const url = router.params.listname ?? '';
-  const res = await axios.post('/gettasks', {
-    url,
-  });
-  res.data.forEach((el: Task): void => {
-    el.datum = new Date(el.datum).toLocaleDateString('de');
-    tasks.value.push(el);
-  });
-});
-
 const drawerRight = ref<boolean>(false);
 const tasks = ref<Task[]>([]);
 const taskname: Ref<string> = ref('');
@@ -181,20 +196,79 @@ const users: string[] = ['Thien', 'Daniel', 'Andi'];
 const date = ref<string>('');
 const priority: Ref<string> = ref('Priorität');
 const prio: string[] = ['Hoch', 'Mittel', 'Niedrig'];
+const prompt = ref<boolean>(false);
+
+onMounted(async () => {
+  loadTask();
+});
+
+watch(useRouter().currentRoute, async () => {
+  tasks.value = [];
+  loadTask();
+});
+
+async function loadTask() {
+  const url = router.params.listname ?? '';
+  const res = await axios.post('/gettasks', {
+    url,
+  });
+
+  for (let i = 0; i < res.data.length; i++) {
+    if (res.data[i].progress != 'DONE') {
+      res.data[i].datum = new Date(res.data[i].datum).toLocaleDateString('de');
+      const tags = await axios.get(`/tags/${res.data[i].id}`);
+      res.data[i].tags = tags.data;
+      tasks.value.push(res.data[i]);
+    }
+  }
+}
+
+//
 
 async function addNewTask(): Promise<void> {
+  // const components = taskname.value.split('#');
+  // console.log(components);
+  // const shownTaskname = components[0];
+  // const lastElement = components[components.length - 1];
+  // console.log(lastElement);
+  // const time = lastElement.split('@')[1];
+  // const createTimeFromString = dayjs(time);
+  // const finalDate = new Date(createTimeFromString.$d);
+  // console.log('stringauslesung', finalDate);
+  // date.value = finalDate.toISOString().substring(0, 10);
+  // const allTags = [];
+  // for (let i = 1; i < components.length - 1; i++) {
+  //   allTags.push({ tagname: components[i] });
+  // }
+  // allTags.push({ tagname: lastElement.split('@')[0] });
+
+  const dateString = taskname.value.split('@')[1];
+  const name = taskname.value.split('#')[0];
+  const tags = taskname.value.split('@')[0].split('#').toSpliced(0, 1);
+
+  const createTimeFromString = dayjs(dateString);
+  const finalDate = new Date(createTimeFromString.$d);
+  date.value = finalDate.toISOString().substring(0, 10);
+
   const task: Task = {
     id: 0,
     listname: router.params.listname as string,
-    taskname: taskname.value,
+    taskname: name,
     description: description.value,
     user: taggedUser.value,
-    datum: date.value.split('/').reverse().join(),
+    datum: date.value.split('-').reverse().join('.'),
     priority: priority.value,
     uuid: uuid,
+    tags: [],
   };
+
+  for (const tag of tags) {
+    task.tags.push({ tagname: tag });
+  }
+
   const res = await axios.post('/addtask', { task });
   task.id = res.data.insertId;
+
   tasks.value.push(task);
 }
 

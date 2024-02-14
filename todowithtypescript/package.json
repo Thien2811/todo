@@ -14,12 +14,15 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
+    "any-date-parser": "^1.5.4",
     "axios": "^1.6.7",
+    "dayjs": "^1.10.4",
+    "dayjs-parser": "^0.9.3",
     "quasar": "^2.6.0",
     "uuid": "^9.0.1",
     "vue": "^3.0.0",
     "vue-axios": "^3.5.2",
-    "vue-router": "^4.0.0"
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.3.0",

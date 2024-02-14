@@ -79,6 +79,6 @@ async function editListname() {
   display: block;
   padding: 2px;
   color: white;
-  margin: 7px;
+  margin: 10px;
 }
 </style>
