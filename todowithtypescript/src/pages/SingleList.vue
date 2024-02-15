@@ -65,7 +65,7 @@
       </q-card>
     </q-dialog>
 
-    <q-drawer
+    <!-- <q-drawer
       side="right"
       v-model="drawerRight"
       :width="400"
@@ -142,6 +142,19 @@
           </q-input>
         </div>
 
+        <div>
+          <q-slider
+            style="padding-left: 40px; padding-right: 40px; margin-top: 10px"
+            v-model="progress"
+            :min="0"
+            :max="100"
+            :step="25"
+            color="pink"
+            dark
+            track-color="pink-3"
+          />
+        </div>
+
         <div
           class="drawerelement"
           style="display: flex; justify-content: center"
@@ -155,7 +168,7 @@
           />
         </div>
       </div>
-    </q-drawer>
+    </q-drawer> -->
   </div>
 
   <div class="scrollable">
@@ -164,10 +177,6 @@
       :key="task.id"
       :task="task"
       @delete="remove(task)"
-      @opendrawer="
-        drawerRight = true;
-        focusTask = task;
-      "
     ></TaskComponent>
   </div>
 </template>
@@ -186,28 +195,13 @@ dayjs.locale('de');
 
 const router = useRoute();
 const uuid: string = router.params.uuid?.toString() ?? '';
-const drawerRight = ref<boolean>(false);
 const tasks = ref<Task[]>([]);
 const taskname: Ref<string> = ref('');
 const description: Ref<string> = ref('');
 const taggedUser: Ref<string> = ref('Zugehörige Person');
-const users: string[] = ['Thien', 'Daniel', 'Andi'];
 const date = ref<string>('');
 const priority: Ref<string> = ref('Priorität');
-const prio: string[] = ['Hoch', 'Mittel', 'Niedrig'];
 const prompt = ref<boolean>(false);
-
-const focusTask = ref<Task>({
-  datum: '',
-  description: '',
-  id: 0,
-  listname: '',
-  priority: '',
-  tags: [],
-  taskname: '',
-  user: '',
-  uuid: '',
-});
 
 onMounted(async () => {
   loadTask();
@@ -278,6 +272,7 @@ async function addNewTask(): Promise<void> {
     priority: priority.value,
     uuid: uuid,
     tags: [],
+    progress: 0,
   };
 
   for (const tag of tags) {
@@ -325,22 +320,6 @@ function getPrio(priority: string): number {
 function remove(task: Task): void {
   const index = tasks.value.findIndex((el) => el.id === task.id);
   tasks.value.splice(index, 1);
-}
-
-async function saveTask() {
-  const newTask: Task = {
-    id: focusTask.value.id,
-    listname: router.params.listname as string,
-    taskname: focusTask.value.taskname,
-    description: focusTask.value.description,
-    user: focusTask.value.user,
-    datum: focusTask.value.datum,
-    priority: focusTask.value.priority,
-    uuid: focusTask.value.uuid,
-    tags: [],
-  };
-  await axios.post('/addtaskinfo', newTask);
-  drawerRight.value = false;
 }
 </script>
 

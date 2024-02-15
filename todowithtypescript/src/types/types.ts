@@ -12,4 +12,5 @@ export type Task = {
     tagname?: string;
     taskid?: number;
   }[];
+  progress: number;
 };

@@ -27,6 +27,7 @@
         <div class="permlist text-center" @click="loadDueTodayTask">
           Heute fällig
         </div>
+        <div class="permlist text-center" @click="loadTimeline">Timeline</div>
         <div class="permlist text-center" @click="loadFinishedTask">
           Abgeschlossen
         </div>
@@ -131,12 +132,16 @@ function loadDueTodayTask() {
   router.push('/duetoday');
 }
 
+function loadTimeline() {
+  router.push('/timeline');
+}
+
 function loadFinishedTask() {
   router.push('/finishedtask');
 }
 
 async function download() {
-  const title = 'KAKDNASKDAKNLSD';
+  const title = 'Datenbank';
   const databaseInfo = await axios.get('/download');
   const url = window.URL.createObjectURL(
     new Blob([JSON.stringify(databaseInfo.data, null, '\t')], {

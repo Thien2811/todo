@@ -31,6 +31,11 @@ const routes: RouteRecordRaw[] = [
     path: '/finishedtask',
     component: () => import('pages/CompletedTaskView.vue'),
   },
+  {
+    name: 'timeline',
+    path: '/timeline',
+    component: () => import('pages/TimelineView.vue'),
+  },
 ];
 
 export default routes;
