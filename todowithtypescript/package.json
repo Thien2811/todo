@@ -14,10 +14,12 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
+    "@types/luxon": "^3.4.2",
     "any-date-parser": "^1.5.4",
     "axios": "^1.6.7",
     "dayjs": "^1.10.4",
     "dayjs-parser": "^0.9.3",
+    "luxon": "^3.4.4",
     "quasar": "^2.6.0",
     "uuid": "^9.0.1",
     "vue": "^3.0.0",

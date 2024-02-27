@@ -3,8 +3,7 @@
     <div class="inline bg-amber rounded-borders" style="max-width: 300px">
       <div
         v-if="!editMode"
-        class="fit flex flex-center text-center non-selectable q-pa-md"
-        style="background-color: #141010; opacity: 1"
+        class="fit bg-pink-3 flex flex-center text-center non-selectable q-pa-md"
       >
         {{ list.listname }}
       </div>
@@ -78,7 +77,8 @@ async function editListname() {
   width: 90%;
   display: block;
   padding: 2px;
-  color: white;
+  color: black;
   margin: 10px;
+  font-weight: bold;
 }
 </style>

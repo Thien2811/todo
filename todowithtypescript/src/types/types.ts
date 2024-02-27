@@ -13,4 +13,5 @@ export type Task = {
     taskid?: number;
   }[];
   progress: number;
+  progressnumber: number;
 };

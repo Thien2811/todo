@@ -22,6 +22,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('pages/RegisterView.vue'),
   },
   {
+    name: 'dueatdate',
+    path: '/dueatdate',
+    component: () => import('pages/DueAtDateView.vue'),
+  },
+  {
     name: 'duetoday',
     path: '/duetoday',
     component: () => import('pages/DueTodayView.vue'),

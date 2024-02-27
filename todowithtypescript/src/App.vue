@@ -12,23 +12,44 @@
       v-model="drawer"
       show-if-above
       :width="200"
-      style="background-color: #fff0f5"
+      style="border-right: 2px solid black"
     >
-      <div
-        class="bg-pink-1"
-        style="display: flex; flex-direction: column; height: 100%"
-      >
-        <div
-          class="meinelistenschrift bg-pink-1 text-center"
-          style="color: black"
-        >
-          Meine Listen
+      <div style="display: flex; flex-direction: column; height: 100%">
+        <div class="q-pa-md">
+          <div class="q-mb-sm"></div>
+
+          <q-btn icon="event" round color="black">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-date v-model="date" color="pink-4">
+                <div class="row items-center justify-end q-gutter-sm">
+                  <q-btn label="Cancel" color="black" flat v-close-popup />
+                  <q-btn
+                    label="OK"
+                    color="black"
+                    flat
+                    @click="loadListAtDate"
+                    v-close-popup
+                  />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-btn>
         </div>
-        <div class="permlist text-center" @click="loadDueTodayTask">
-          Heute fällig
+        <!-- <div class="meinelistenschrift text-center">Meine Listen</div> -->
+        <div class="permlist bg-pink-3 text-center" @click="loadDueTodayTask">
+          Heute
         </div>
-        <div class="permlist text-center" @click="loadTimeline">Timeline</div>
-        <div class="permlist text-center" @click="loadFinishedTask">
+        <div class="permlist bg-pink-3 text-center" @click="loadListAtDate">
+          7-Tage-Vorschau
+        </div>
+        <div class="permlist bg-pink-3 text-center" @click="loadTimeline">
+          Alle Tasks
+        </div>
+        <div class="permlist bg-pink-3 text-center" @click="loadFinishedTask">
           Abgeschlossen
         </div>
 
@@ -38,9 +59,14 @@
             icon="add"
             filled
             flat
-            style="width: 95%"
-            label="Neue Liste"
+            style="width: 100%"
           ></q-btn>
+          <div
+            v-if="lists.length === 0"
+            class="text-white text-subtitle1 text-center"
+          >
+            Keine Listen
+          </div>
           <q-dialog v-model="prompt" persistent>
             <q-card style="min-width: 350px">
               <q-card-section>
@@ -63,8 +89,8 @@
                 <q-btn flat label="Abbrechen" v-close-popup />
                 <q-btn
                   flat
-                  label="Liste hinzufügen"
                   @click="addNewList"
+                  label="Hinzufügen"
                   v-close-popup
                 />
               </q-card-actions>
@@ -102,6 +128,7 @@ type List = {
   listname: string;
 };
 
+const date = ref<string>('');
 const router = useRouter();
 const drawer = ref<boolean>(false);
 const listname = ref('');
@@ -148,11 +175,14 @@ async function download() {
       type: 'application/json',
     })
   );
-  console.log(url);
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', title);
   link.click();
+}
+
+function loadListAtDate() {
+  router.push('/dueatdate');
 }
 </script>
 
@@ -160,7 +190,6 @@ async function download() {
 .meinelistenschrift {
   font-weight: bold;
   color: white;
-  background-color: black;
   font-size: 200%;
 }
 
@@ -184,9 +213,15 @@ body {
 }
 
 .permlist {
-  background-color: black;
-  color: white;
+  color: black;
   margin: 13px;
   padding: 14px;
+  font-weight: bold;
+}
+
+aside.q-drawer.q-drawer--left.q-drawer--standard {
+  backdrop-filter: blur(20px) brightness(130%);
+
+  background-color: transparent;
 }
 </style>

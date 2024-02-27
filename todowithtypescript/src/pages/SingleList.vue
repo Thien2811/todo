@@ -1,48 +1,5 @@
 <template>
-  <div class="text-h1 text-center" style="color: white; font-weight: bold">
-    {{ router.params.listname }}
-  </div>
-  <div>
-    <q-btn
-      style="
-        background-color: #db7093;
-        color: white;
-        opacity: 0.9;
-        margin-left: 20px;
-      "
-      @click="prompt = !prompt"
-      label="Task hinzufügen"
-    />
-    <q-btn-dropdown
-      flat
-      class="float-right"
-      label="Sortieren"
-      style="
-        background-color: #db7093;
-        color: white;
-        opacity: 0.9;
-        margin-right: 20px;
-      "
-    >
-      <q-list>
-        <q-item clickable @click="orderBy(0)" v-close-popup>
-          <q-item-section>
-            <q-item-label>Priorität</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable @click="orderBy(1)" v-close-popup>
-          <q-item-section>
-            <q-item-label>Datum</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable @click="orderBy(2)" v-close-popup>
-          <q-item-section>
-            <q-item-label>Alphabetisch</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-btn-dropdown>
-
+  <div style="display: flex; justify-content: center">
     <q-dialog v-model="prompt" persistent>
       <q-card style="min-width: 350px">
         <q-card-section>
@@ -65,7 +22,7 @@
       </q-card>
     </q-dialog>
 
-    <!-- <q-drawer
+    <q-drawer
       side="right"
       v-model="drawerRight"
       :width="400"
@@ -86,7 +43,7 @@
         </div>
         <div class="drawerelement">
           <q-input
-            v-model="focusTask.taskname"
+            v-model="editTask.taskname"
             filled
             standout
             label="Taskname"
@@ -95,7 +52,7 @@
         <div class="drawerelement">
           <q-input
             type="textarea"
-            v-model="focusTask.description"
+            v-model="editTask.description"
             standout
             filled
             label="Beschreibung"
@@ -103,19 +60,21 @@
         </div>
         <div class="drawerelement">
           <div>
+            class="scrollable"
             <q-select
               class="input"
               standout
-              v-model="focusTask.user"
+              v-model="editTask.user"
               :options="users"
               label="Zugehörige Person"
               filled
             />
           </div>
-          <div>
+          <div class="q-mt-md">
             <q-select
+              class="input"
               standout
-              v-model="focusTask.priority"
+              v-model="editTask.priority"
               label="Priorität"
               :options="prio"
               filled
@@ -123,7 +82,7 @@
           </div>
         </div>
         <div class="drawerelement">
-          <q-input filled v-model="focusTask.datum" label="Datum">
+          <q-input filled v-model="editTask.datum" label="Datum">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy
@@ -131,7 +90,7 @@
                   transition-show="scale"
                   transition-hide="scale"
                 >
-                  <q-date v-model="focusTask.datum" mask="DD.MM.YYYY">
+                  <q-date v-model="editTask.datum" mask="DD.MM.YYYY">
                     <div class="row items-center justify-end">
                       <q-btn v-close-popup label="Close" color="primary" flat />
                     </div>
@@ -145,13 +104,15 @@
         <div>
           <q-slider
             style="padding-left: 40px; padding-right: 40px; margin-top: 10px"
-            v-model="progress"
+            v-model="editTask.progressnumber"
             :min="0"
             :max="100"
             :step="25"
             color="pink"
             dark
             track-color="pink-3"
+            label-value="Fortschritt"
+            label
           />
         </div>
 
@@ -168,21 +129,64 @@
           />
         </div>
       </div>
-    </q-drawer> -->
+    </q-drawer>
   </div>
 
+  <div style="margin: auto; width: 40vw; overflow: auto; padding-bottom: 10px">
+    <div class="q-mt-lg" style="font-size: 400%; color: black">
+      {{ route.params.listname }}
+      <span class="text-h4">{{ getTaskAmount }}/{{ taskCount }}</span>
+    </div>
+    <span style="color: white; font-weight: bold">
+      <q-btn
+        style="background-color: #db7093; color: white; opacity: 0.9"
+        @click="prompt = !prompt"
+        icon="add"
+        flat
+      />
+      <q-btn-dropdown
+        flat
+        icon="sort"
+        style="
+          background-color: #db7093;
+          color: white;
+          opacity: 0.9;
+          margin-left: 15px;
+        "
+      >
+        <q-list>
+          <q-item clickable @click="orderBy(0)" v-close-popup>
+            <q-item-section>
+              <q-item-label>Priorität</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable @click="orderBy(1)" v-close-popup>
+            <q-item-section>
+              <q-item-label>Datum</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable @click="orderBy(2)" v-close-popup>
+            <q-item-section>
+              <q-item-label>Alphabetisch</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
+    </span>
+  </div>
   <div class="scrollable">
     <TaskComponent
       v-for="task of tasks"
       :key="task.id"
       :task="task"
       @delete="remove(task)"
+      @edit="edit($event)"
     ></TaskComponent>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted } from 'vue';
+import { ref, Ref, watch, onMounted, toRef, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import TaskComponent from 'src/components/TaskComponent.vue';
 import axios from 'axios';
@@ -193,8 +197,8 @@ import parsePlugin from 'dayjs-parser';
 dayjs.extend(parsePlugin);
 dayjs.locale('de');
 
-const router = useRoute();
-const uuid: string = router.params.uuid?.toString() ?? '';
+const route = useRoute();
+const uuid: string = route.params.uuid?.toString() ?? '';
 const tasks = ref<Task[]>([]);
 const taskname: Ref<string> = ref('');
 const description: Ref<string> = ref('');
@@ -202,6 +206,47 @@ const taggedUser: Ref<string> = ref('Zugehörige Person');
 const date = ref<string>('');
 const priority: Ref<string> = ref('Priorität');
 const prompt = ref<boolean>(false);
+const taskCount = ref<number>();
+
+const users: string[] = ['Thien', 'Daniel', 'Andi'];
+const prio: string[] = ['Ja', 'Nein'];
+const drawerRight = ref<boolean>(false);
+let editTask = ref<Task>({
+  id: 0,
+  listname: '',
+  datum: '',
+  description: '',
+  priority: '',
+  progress: 0,
+  tags: [],
+  taskname: '',
+  user: '',
+  uuid: '',
+  progressnumber: 0,
+});
+
+function edit(newEditTask: Task): void {
+  drawerRight.value = !drawerRight.value;
+  editTask = toRef(newEditTask);
+}
+
+async function saveTask() {
+  const newTask: Task = {
+    id: editTask.value.id,
+    listname: route.params.listname as string,
+    taskname: editTask.value.taskname,
+    description: editTask.value.description,
+    user: editTask.value.user,
+    datum: editTask.value.datum,
+    priority: editTask.value.priority,
+    uuid: editTask.value.uuid,
+    progress: editTask.value.progress,
+    tags: [],
+    progressnumber: editTask.value.progressnumber,
+  };
+  await axios.post('/addtaskinfo', newTask);
+  drawerRight.value = false;
+}
 
 onMounted(async () => {
   loadTask();
@@ -212,48 +257,25 @@ watch(useRouter().currentRoute, async () => {
   loadTask();
 });
 
+const getTaskAmount = computed(() => tasks.value.length);
+
 async function loadTask() {
-  const url = router.params.listname ?? '';
+  const url = route.params.listname ?? '';
   const res = await axios.post('/gettasks', {
     url,
   });
-
+  taskCount.value = res.data.length;
   for (let i = 0; i < res.data.length; i++) {
     if (res.data[i].progress != 'DONE') {
       res.data[i].datum = new Date(res.data[i].datum).toLocaleDateString('de');
       const tags = await axios.get(`/tags/${res.data[i].id}`);
       res.data[i].tags = tags.data;
       tasks.value.push(res.data[i]);
-      // focusTask.value.description = tasks.value[i].description;
-      // focusTask.value.taskname = tasks.value[i].taskname;
-      // focusTask.value.user = tasks.value[i].user;
-      // focusTask.value.priority = tasks.value[i].priority;
-      // focusTask.value.datum = tasks.value[i].datum;
     }
   }
-
-  console.log(tasks.value);
 }
 
-//
-
 async function addNewTask(): Promise<void> {
-  // const components = taskname.value.split('#');
-  // console.log(components);
-  // const shownTaskname = components[0];
-  // const lastElement = components[components.length - 1];
-  // console.log(lastElement);
-  // const time = lastElement.split('@')[1];
-  // const createTimeFromString = dayjs(time);
-  // const finalDate = new Date(createTimeFromString.$d);
-  // console.log('stringauslesung', finalDate);
-  // date.value = finalDate.toISOString().substring(0, 10);
-  // const allTags = [];
-  // for (let i = 1; i < components.length - 1; i++) {
-  //   allTags.push({ tagname: components[i] });
-  // }
-  // allTags.push({ tagname: lastElement.split('@')[0] });
-
   const dateString = taskname.value.split('@')[1];
   const name = taskname.value.split('#')[0];
   const tags = taskname.value.split('@')[0].split('#').toSpliced(0, 1);
@@ -264,7 +286,7 @@ async function addNewTask(): Promise<void> {
 
   const task: Task = {
     id: 0,
-    listname: router.params.listname as string,
+    listname: route.params.listname as string,
     taskname: name,
     description: description.value,
     user: taggedUser.value,
@@ -273,6 +295,7 @@ async function addNewTask(): Promise<void> {
     uuid: uuid,
     tags: [],
     progress: 0,
+    progressnumber: 0,
   };
 
   for (const tag of tags) {
@@ -282,24 +305,23 @@ async function addNewTask(): Promise<void> {
   const res = await axios.post('/addtask', { task });
   task.id = res.data.insertId;
 
+  console.log(task);
   tasks.value.push(task);
+  taskCount.value++;
 }
 
 function orderBy(by: number) {
   if (by === 0) {
-    console.log('sort by prio');
     tasks.value = tasks.value.sort(
       (a: Task, b: Task) => getPrio(b.priority) - getPrio(a.priority)
     );
   } else if (by === 1) {
-    console.log('sort by date');
     tasks.value = tasks.value.sort(
       (a: Task, b: Task) =>
         +new Date(a.datum?.split('.').reverse().join('-')) -
         +new Date(b.datum?.split('.').reverse().join('-'))
     );
   } else {
-    console.log('sort by name');
     tasks.value = tasks.value.sort((a: Task, b: Task) =>
       a.taskname.localeCompare(b.taskname)
     );
@@ -320,6 +342,7 @@ function getPrio(priority: string): number {
 function remove(task: Task): void {
   const index = tasks.value.findIndex((el) => el.id === task.id);
   tasks.value.splice(index, 1);
+  taskCount.value--;
 }
 </script>
 
@@ -335,7 +358,9 @@ h1 {
 }
 
 .scrollable {
-  max-height: 870px;
+  margin: auto;
+  width: 40vw;
+  max-height: 82vh;
   overflow: auto;
 }
 

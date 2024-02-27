@@ -1,8 +1,5 @@
 <template>
-  <div
-    style="color: white; font-weight: bold; font-size: 300%"
-    class="text-center"
-  >
+  <div style="color: black; font-size: 300%" class="text-center">
     Abgeschlossene Tasks der letzten 14 Tage
   </div>
   <div>

@@ -1,13 +1,12 @@
 <template>
-  <div
-    style="font-weight: bold; color: white; font-size: 200%; margin-left: 15px"
-  >
+  <br />
+  <div class="q-pa-lg" style="color: black; font-size: 200%">
     Heute ist der {{ new Date().toLocaleString('de').split(',')[0] }}.
   </div>
   <br />
   <br />
-  <br />
-  <div style="font-weight: bold; color: white; font-size: 200%">
+
+  <div class="q-pa-lg" style="color: black; font-size: 200%">
     Folgende Tasks sind heute fällig:
   </div>
   <div>
