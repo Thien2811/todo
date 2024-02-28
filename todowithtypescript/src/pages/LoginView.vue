@@ -19,7 +19,7 @@
       ></q-input>
     </div>
     <div>
-      <q-btn label="Einloggen" color="primary"> </q-btn>
+      <q-btn label="Einloggen" color="primary" @click="loginSuccess"> </q-btn>
       <q-btn label="Registrieren" color="primary" @click="moveToRegister">
       </q-btn>
     </div>
@@ -27,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+import axios from 'axios';
+import { Notify } from 'quasar';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -36,6 +38,24 @@ const router = useRouter();
 
 function moveToRegister() {
   router.push('/register');
+}
+
+async function loginSuccess() {
+  try {
+    const user = await axios.post(
+      '/login',
+      {
+        user: username.value,
+        password: password.value,
+      },
+      { withCredentials: true }
+    );
+    console.log(user.data);
+    router.push('/duetoday');
+    Notify.create('passt');
+  } catch (e) {
+    Notify.create('nein');
+  }
 }
 </script>
 

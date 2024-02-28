@@ -34,6 +34,15 @@
         style="display: flex; flex-direction: column; height: 100%"
       >
         <div style="display: flex; justify-content: right; margin-top: 20px">
+          <q-btn-dropdown icon="more" flat>
+            <q-list v-for="(index, i) of listnames" :key="index">
+              <q-item clickable v-close-popup @click="changeList(listnames[i])">
+                <q-item-section>
+                  <q-item-label>{{ listnames[i] }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
           <q-btn
             @click="drawerRight = !drawerRight"
             icon="close"
@@ -206,6 +215,7 @@ const date = ref<string>('');
 const priority: Ref<string> = ref('Priorität');
 const prompt = ref<boolean>(false);
 const taskCount = ref<number>();
+const listnames = ref<string[]>([]);
 
 const users: string[] = ['Thien', 'Daniel', 'Andi'];
 const prio: string[] = ['Ja', 'Nein'];
@@ -249,11 +259,22 @@ async function saveTask() {
 
 onMounted(async () => {
   loadTask();
+  const listname = await axios.get('/getlistnames');
+  for (let list of listname.data) {
+    if (list.listname != route.params.listname)
+      listnames.value.push(list.listname);
+  }
 });
 
 watch(useRouter().currentRoute, async () => {
   tasks.value = [];
+  listnames.value = [];
   loadTask();
+  const listname = await axios.get('/getlistnames');
+  for (let list of listname.data) {
+    if (list.listname != route.params.listname)
+      listnames.value.push(list.listname);
+  }
 });
 
 const getTaskAmount = computed(() => tasks.value.length);
@@ -343,6 +364,17 @@ function remove(task: Task): void {
   const index = tasks.value.findIndex((el) => el.id === task.id);
   tasks.value.splice(index, 1);
   taskCount.value--;
+}
+
+async function changeList(list: string): Promise<void> {
+  await axios.post('/changelist', {
+    listname: list,
+    taskname: editTask.value.taskname,
+  });
+  const i = tasks.value.findIndex((el) => {
+    return el.taskname == editTask.value.taskname;
+  });
+  tasks.value.splice(i, 1);
 }
 </script>
 

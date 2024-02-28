@@ -130,7 +130,6 @@ watch(useRouter().currentRoute, () => {
       currentPage.value = 'Alle Tasks';
       break;
     case 'duetoday':
-      ToDo;
       currentPage.value = 'Heute';
       break;
     case 'dueatdate':
