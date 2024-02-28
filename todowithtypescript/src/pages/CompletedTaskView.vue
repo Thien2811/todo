@@ -1,13 +1,29 @@
 <template>
-  <div style="color: black; font-size: 300%" class="text-center">
-    Abgeschlossene Tasks der letzten 14 Tage
-  </div>
-  <div>
-    <CompletedTaskComponent
-      v-for="task of tasks"
-      :key="task.id"
-      :task="task"
-    ></CompletedTaskComponent>
+  <div
+    style="
+      backdrop-filter: blur(20px);
+      width: 50%;
+      margin: auto;
+      padding-bottom: 50px;
+      border-radius: 10px;
+    "
+  >
+    <div class="q-pa-lg text-center">
+      <div>
+        <q-timeline>
+          <q-timeline-entry heading style="color: white">
+            Abgeschlossene Tasks der letzten 14 Tage</q-timeline-entry
+          >
+        </q-timeline>
+      </div>
+    </div>
+    <div>
+      <CompletedTaskComponent
+        v-for="task of tasks"
+        :key="task.id"
+        :task="task"
+      ></CompletedTaskComponent>
+    </div>
   </div>
 </template>
 
@@ -28,7 +44,6 @@ onMounted(async () => {
 
   for (const task of res.data as Task[]) {
     const finishedDate = new Date(task.datum).getTime();
-    console.log(task);
     if (currentDate - finishedDate >= daysInMilliseconds) {
       await axios.post('/archivetask', { id: task.id });
     } else {

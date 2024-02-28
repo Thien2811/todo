@@ -60,7 +60,6 @@
         </div>
         <div class="drawerelement">
           <div>
-            class="scrollable"
             <q-select
               class="input"
               standout
@@ -334,6 +333,7 @@ function getPrio(priority: string): number {
       Hoch: 3,
       Mittel: 2,
       Niedrig: 1,
+      listname,
     }[priority] ?? 0;
 
   return prio;

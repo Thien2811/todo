@@ -161,22 +161,12 @@ const taskStyle = computed(() => {
   const prio =
     {
       Ja: '10px solid red',
-      Nein: '10px solid pink',
-    }[task.value.priority] ?? '10px solid transparent';
+    }[task.value.priority] ?? '10px solid pink';
 
   style['border-left'] = prio;
 
   return style;
 });
-
-// function borderColor() {
-//   const prio: string =
-//     {
-//       Ja: 'border-left: 20px solid red;',
-//       Nein: 'border-left: 20px solid green;',
-//     }[task.value.priority] ?? '';
-//   return prio;
-// }
 </script>
 
 <style scoped>

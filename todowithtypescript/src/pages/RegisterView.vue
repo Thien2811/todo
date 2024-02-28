@@ -1,7 +1,7 @@
 <template>
-  <h1>Registrieren</h1>
+  <div>Registrieren</div>
   <div class="containerr">
-    <div style="margin-bottom: 10px">
+    <div>
       <q-input
         v-model="newUsername"
         standout
@@ -10,7 +10,7 @@
         label="Benutzername"
       ></q-input>
     </div>
-    <div style="margin-bottom: 10px">
+    <div>
       <q-input
         label="Passwort"
         bg-color="white"
@@ -28,7 +28,7 @@
         </template>
       </q-input>
     </div>
-    <div style="margin-bottom: 10px">
+    <div>
       <q-input
         label="Passwort wiederholen"
         bg-color="white"
@@ -47,14 +47,8 @@
       </q-input>
     </div>
 
-    <div style="margin-top: 20px">
-      <q-btn
-        style="width: 192px"
-        label="Registrieren"
-        color="primary"
-        @click="register"
-      >
-      </q-btn>
+    <div>
+      <q-btn label="Registrieren" color="primary" @click="register"> </q-btn>
     </div>
   </div>
 </template>
@@ -62,7 +56,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import axios from 'axios';
-import { sortAndDeduplicateDiagnostics } from 'typescript';
 
 type User = {
   username: string;
@@ -92,15 +85,4 @@ async function register() {
 }
 </script>
 
-<style scoped>
-h1 {
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  font-size: 1000%;
-}
-.containerr {
-  margin: auto;
-  max-width: 400px;
-}
-</style>
+<style scoped></style>

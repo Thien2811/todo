@@ -3,43 +3,20 @@
     <q-header elevated :class="$q.dark.isActive ? 'bg-secondary' : 'bg-black'">
       <q-toolbar>
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
-        <q-toolbar-title>ToDo</q-toolbar-title>
+        <q-toolbar-title>{{ currentPage }}</q-toolbar-title>
         <q-btn class="float-right" icon="download" @click="download"></q-btn>
       </q-toolbar>
     </q-header>
 
     <q-drawer
+      v-if="currentPage != ''"
       v-model="drawer"
       show-if-above
       :width="200"
       style="border-right: 2px solid black"
     >
-      <div style="display: flex; flex-direction: column; height: 100%">
-        <div class="q-pa-md">
-          <div class="q-mb-sm"></div>
-
-          <q-btn icon="event" round color="black">
-            <q-popup-proxy
-              cover
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <q-date v-model="date" color="pink-4">
-                <div class="row items-center justify-end q-gutter-sm">
-                  <q-btn label="Cancel" color="black" flat v-close-popup />
-                  <q-btn
-                    label="OK"
-                    color="black"
-                    flat
-                    @click="loadListAtDate"
-                    v-close-popup
-                  />
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-btn>
-        </div>
-        <!-- <div class="meinelistenschrift text-center">Meine Listen</div> -->
+      <div style="display: flex; flex-direction: column">
+        <div class="q-pa-md"></div>
         <div class="permlist bg-pink-3 text-center" @click="loadDueTodayTask">
           Heute
         </div>
@@ -105,8 +82,8 @@
             @delete="removeList(list.uuid)"
           ></ListnameComponent>
         </q-list>
-      </div>
-    </q-drawer>
+      </div> </q-drawer
+    >const currentValue = currentPage.value[0]; console.log(currentValue);
 
     <q-page-container>
       <q-page>
@@ -117,11 +94,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import ListnameComponent from 'src/components/ListnameComponent.vue';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { useRouter } from 'vue-router';
+
+import { useRouter, useRoute } from 'vue-router';
 
 type List = {
   uuid: string;
@@ -134,11 +112,40 @@ const drawer = ref<boolean>(false);
 const listname = ref('');
 const lists = ref<List[]>([]);
 const prompt = ref<boolean>(false);
+const route = useRoute();
+const currentPage = ref<string>('');
+
 onMounted(async () => {
   const res = await axios.get('getlistnames');
   res.data.forEach((element: List) => {
     lists.value.push(element);
   });
+});
+
+watch(useRouter().currentRoute, () => {
+  const currentRoute = route.name;
+  console.log(currentRoute);
+  switch (currentRoute) {
+    case 'timeline':
+      currentPage.value = 'Alle Tasks';
+      break;
+    case 'duetoday':
+      ToDo;
+      currentPage.value = 'Heute';
+      break;
+    case 'dueatdate':
+      currentPage.value = 'Nächste 7 Tage';
+      break;
+    case 'finishedtask':
+      currentPage.value = 'Abgeschlossen (letzte 14 Tage)';
+      break;
+    case 'list':
+      currentPage.value = 'ToDo';
+      break;
+    default:
+      currentPage.value = '';
+      break;
+  }
 });
 
 async function addNewList(): Promise<void> {
@@ -223,5 +230,9 @@ aside.q-drawer.q-drawer--left.q-drawer--standard {
   backdrop-filter: blur(20px) brightness(130%);
 
   background-color: transparent;
+}
+
+.q-page-container {
+  height: 50%;
 }
 </style>

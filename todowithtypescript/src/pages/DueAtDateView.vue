@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-lg" style="margin-left: 220px">
-    <q-timeline color="pink-4">
-      <q-timeline-entry heading> Tasks der nächsten 7 Tage </q-timeline-entry>
+    <q-timeline color="pink-3">
+      <q-timeline-entry heading>Diese Woche</q-timeline-entry>
 
       <q-timeline-entry
         v-for="task of sortedTasks"
@@ -9,8 +9,10 @@
         :subtitle="task.datum"
         style="color: white; font-size: 150%"
       >
-        <span style="font-weight: bold">{{ task.listname }}:</span>
-        {{ task.taskname }}
+        <div>
+          <span style="font-weight: bold">{{ task.listname }}:</span>
+          {{ task.taskname }}
+        </div>
       </q-timeline-entry>
     </q-timeline>
   </div>
@@ -24,10 +26,8 @@ import { DateTime } from 'luxon';
 
 const tasks = ref<Task[]>([]);
 const dateNow = new Date().getTime();
-console.log(dateNow);
 const sevenDays = 604800000;
 const inAWeek = new Date(dateNow + sevenDays).toLocaleDateString();
-console.log(inAWeek);
 
 onMounted(async () => {
   const res = await axios.get('/getalltasks');

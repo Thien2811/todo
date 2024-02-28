@@ -1,8 +1,14 @@
 <template>
   <div class="taskbox" :style="borderColor(task.priority)">
-    <div style="font-size: 150%">{{ task.listname }}</div>
-    <div>Aufgabe: {{ task.taskname }}</div>
-    <div>Zugehörige Person: {{ task.user }}</div>
+    <div style="font-size: 150%">
+      {{ task.taskname.replaceAll(' ', '')
+      }}<span style="font-size: 80%" class="q-ml-sm text-pink-3">
+        {{ task.listname }}</span
+      >
+    </div>
+    <div v-if="task.user != 'Zugehörige Person'">
+      Zugehörige Person: {{ task.user }}
+    </div>
     <div>Erledigt am: {{ task.datum }}</div>
   </div>
 </template>
@@ -17,10 +23,8 @@ const task = toRef<Task>(props.task);
 function borderColor(priority: string): string {
   let prio: string =
     {
-      Hoch: 'border: 5px solid red;',
-      Mittel: 'border: 5px solid orange;',
-      Niedrig: 'border: 5px solid green;',
-    }[priority] ?? 'border: 3px solid white;';
+      Ja: 'border-left: 10px solid red;',
+    }[priority] ?? 'border-left: 10px solid pink';
 
   return prio;
 }
@@ -29,8 +33,8 @@ function borderColor(priority: string): string {
 <style scoped>
 .taskbox {
   margin: auto;
-  width: 50%;
-  padding: 15px;
+  width: 90%;
+  padding: 10px;
   border-radius: 8px;
   margin-top: 15px;
   background-color: #fff0f5;

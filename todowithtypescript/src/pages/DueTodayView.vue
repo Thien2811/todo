@@ -1,21 +1,18 @@
 <template>
-  <br />
-  <div class="q-pa-lg" style="color: black; font-size: 200%">
-    Heute ist der {{ new Date().toLocaleString('de').split(',')[0] }}.
-  </div>
-  <br />
-  <br />
-
-  <div class="q-pa-lg" style="color: black; font-size: 200%">
-    Folgende Tasks sind heute fällig:
-  </div>
-  <div>
-    <DueDatesComponent
-      v-for="task of tasks"
-      :key="task.id"
-      :task="task"
-      @delete="remove(task)"
-    ></DueDatesComponent>
+  <div class="q-pa-lg" style="margin-left: 220px">
+    <q-timeline>
+      <q-timeline-entry heading>
+        Heutiges Datum: {{ new Date().toLocaleString('de').split(',')[0] }}
+      </q-timeline-entry>
+    </q-timeline>
+    <div>
+      <DueDatesComponent
+        v-for="task of tasks"
+        :key="task.id"
+        :task="task"
+        @delete="remove(task)"
+      ></DueDatesComponent>
+    </div>
   </div>
 </template>
 

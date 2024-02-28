@@ -1,7 +1,6 @@
 <template>
-  <h1>Login</h1>
-  <div class="containerr">
-    <div style="margin-bottom: 10px">
+  <div>
+    <div>
       <q-input
         v-model="username"
         standout
@@ -19,19 +18,9 @@
         label="Passwort"
       ></q-input>
     </div>
-    <div style="margin-top: 20px">
-      <q-btn
-        style="width: 192px; margin-right: 16px"
-        label="Einloggen"
-        color="primary"
-      >
-      </q-btn>
-      <q-btn
-        style="width: 192px"
-        label="Registrieren"
-        color="primary"
-        @click="moveToRegister"
-      >
+    <div>
+      <q-btn label="Einloggen" color="primary"> </q-btn>
+      <q-btn label="Registrieren" color="primary" @click="moveToRegister">
       </q-btn>
     </div>
   </div>
@@ -50,15 +39,4 @@ function moveToRegister() {
 }
 </script>
 
-<style scoped>
-h1 {
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  font-size: 1000%;
-}
-.containerr {
-  margin: auto;
-  max-width: 400px;
-}
-</style>
+<style scoped></style>
