@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-lg" style="margin-left: 220px">
-    <q-timeline color="pink-4">
+    <q-timeline color="pink-3">
       <q-timeline-entry heading> Tasks in der Zeitleiste </q-timeline-entry>
 
       <q-timeline-entry

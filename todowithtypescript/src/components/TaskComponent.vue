@@ -79,8 +79,8 @@
           <span class="q-ml-sm" style="color: black"
             >Dein Fortschritt ist auf 100%. Möchtest du deine Task
             abschließen?</span
-          >
-        </q-card-section>
+          > </q-card-section
+        >Privat
 
         <q-card-actions align="right">
           <q-btn flat label="Nein" color="#fff0f5" v-close-popup />
@@ -99,7 +99,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { Task } from 'src/types/types';
-import { computed, toRef } from 'vue';
+import { computed, onMounted, toRef } from 'vue';
 import { ref } from 'vue';
 
 const props = defineProps(['task']);
@@ -109,6 +109,10 @@ const confirm = ref<boolean>(false);
 const showTask = ref<number>(0);
 
 const emits = defineEmits(['delete', 'edit']);
+
+onMounted(() => {
+  console.log(props.task);
+});
 
 async function confirmProgress() {
   showTask.value = 100;
