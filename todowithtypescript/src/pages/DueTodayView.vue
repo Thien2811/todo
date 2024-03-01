@@ -31,7 +31,6 @@ onMounted(async () => {
   for (let i = 0; i < res.data.length; i++) {
     if (res.data[i].progress == null) {
       res.data[i].datum = dayjs(res.data[i].datum).format('DD.MM.YYYY');
-      console.log(res.data[i], i);
       tasks.value.push(res.data[i]);
       tasks.value = tasks.value.sort(
         (a: Task, b: Task) => getPrio(b.priority) - getPrio(a.priority)

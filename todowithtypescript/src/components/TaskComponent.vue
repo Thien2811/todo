@@ -96,10 +96,10 @@
     </q-dialog>
   </div>
 </template>
-<script setup lang="ts">
+<script async setup lang="ts">
 import axios from 'axios';
 import { Task } from 'src/types/types';
-import { computed, onMounted, toRef } from 'vue';
+import { computed, toRef } from 'vue';
 import { ref } from 'vue';
 
 const props = defineProps(['task']);
@@ -109,10 +109,6 @@ const confirm = ref<boolean>(false);
 const showTask = ref<number>(0);
 
 const emits = defineEmits(['delete', 'edit']);
-
-onMounted(() => {
-  console.log(props.task);
-});
 
 async function confirmProgress() {
   showTask.value = 100;

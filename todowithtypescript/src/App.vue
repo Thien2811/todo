@@ -4,7 +4,24 @@
       <q-toolbar>
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
         <q-toolbar-title>{{ currentPage }}</q-toolbar-title>
+        <div class="scrolling-container">
+          <q-toolbar-title class="scrolling-text"
+            >{{ location }} ,
+            {{ new Date().toLocaleString('de').split(',')[0] }} , {{ date }} ,
+            {{ temperatur }}°C
+            <!-- <q-icon name="sunny"></q-icon>
+          <q-icon name="umbrella"></q-icon>
+          <q-icon name="air"></q-icon>
+          <q-icon style="width: 500px" name="partly_cloudy_day"></q-icon> -->
+          </q-toolbar-title>
+        </div>
         <q-btn class="float-right" icon="download" @click="download"></q-btn>
+        <q-btn
+          v-if="currentPage != ''"
+          class="float-right"
+          icon="logout"
+          @click="logout"
+        ></q-btn>
       </q-toolbar>
     </q-header>
 
@@ -75,15 +92,17 @@
           </q-dialog>
         </div>
         <q-list style="flex-grow: 1; overflow: auto">
-          <ListnameComponent
-            v-for="list of lists"
-            :key="list.uuid"
-            :list="list"
-            @delete="removeList(list.uuid)"
-          ></ListnameComponent>
+          <VueDraggableNext v-model="lists">
+            <ListnameComponent
+              v-for="list of lists"
+              :key="list.uuid"
+              :list="list"
+              @delete="removeList(list.uuid)"
+            ></ListnameComponent>
+          </VueDraggableNext>
         </q-list>
-      </div> </q-drawer
-    >const currentValue = currentPage.value[0]; console.log(currentValue);
+      </div>
+    </q-drawer>
 
     <q-page-container>
       <q-page>
@@ -94,11 +113,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import ListnameComponent from 'src/components/ListnameComponent.vue';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-
+import { VueDraggableNext } from 'vue-draggable-next';
 import { useRouter, useRoute } from 'vue-router';
 
 type List = {
@@ -106,7 +125,6 @@ type List = {
   listname: string;
 };
 
-const date = ref<string>('');
 const router = useRouter();
 const drawer = ref<boolean>(false);
 const listname = ref('');
@@ -114,17 +132,39 @@ const lists = ref<List[]>([]);
 const prompt = ref<boolean>(false);
 const route = useRoute();
 const currentPage = ref<string>('');
+const location = ref<string>('');
+const temperatur = ref<string>('');
+const date = ref(new Date().toLocaleString('de'));
+// const icon = ref<string>('');
 
 onMounted(async () => {
   const res = await axios.get('getlistnames');
   res.data.forEach((element: List) => {
     lists.value.push(element);
   });
+
+  const weatherdata = await fetch(
+    'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Schwabm%C3%BCnchen?unitGroup=metric&key=WNWVR6D2K56NSY5WKNVV988KS&contentType=json'
+  ).then((res) => res.json());
+
+  location.value = weatherdata.address;
+  temperatur.value = weatherdata.currentConditions.temp;
+
+  // const keywords = weatherdata.currentConditions.conditions.split(' ');
+  // console.log(keywords);
+
+  setInterval(() => {
+    date.value = new Date()
+      .toLocaleString('de')
+      .split(',')[1]
+      .split(':')
+      .splice(0, 2)
+      .join(':');
+  }, 1000);
 });
 
 watch(useRouter().currentRoute, () => {
   const currentRoute = route.name;
-  console.log(currentRoute);
   switch (currentRoute) {
     case 'timeline':
       currentPage.value = 'Alle Tasks';
@@ -190,6 +230,11 @@ async function download() {
 function loadListAtDate() {
   router.push('/dueatdate');
 }
+
+async function logout() {
+  await axios.get('/logout');
+  window.location.reload();
+}
 </script>
 
 <style scoped>
@@ -233,5 +278,30 @@ aside.q-drawer.q-drawer--left.q-drawer--standard {
 
 .q-page-container {
   height: 50%;
+}
+
+.scrolling-text {
+  white-space: nowrap; /* Verhindert Zeilenumbrüche */
+  overflow: hidden; /* Versteckt den Text, der über die Grenzen hinausgeht */
+  animation: scrollText 20s linear infinite; /* Animationseigenschaften anpassen */
+}
+
+@keyframes scrollText {
+  from {
+    transform: translateX(
+      100%
+    ); /* Startposition (aus dem Sichtfeld nach rechts) */
+  }
+  to {
+    transform: translateX(
+      -100%
+    ); /* Endposition (aus dem Sichtfeld nach links) */
+  }
+}
+
+.scrolling-container {
+  width: 400px; /* Breite des Containers anpassen */
+  margin-right: 10px;
+  overflow: hidden; /* Versteckt den Text, der über die Grenzen hinausgeht */
 }
 </style>

@@ -182,41 +182,26 @@
       </q-btn-dropdown>
     </span>
   </div>
-  <draggable v-model="tasks" tag="div" :move="checkMove" item-key="name">
-    <template #item="{ element: tasks }">
-      <div class="scrollable">
-        <div v-for="(task, index) of tasks" :key="index">
-          {{ task }}
-          <TaskComponent
-            :task="task"
-            @delete="remove(task)"
-            @edit="edit($event)"
-          ></TaskComponent>
-        </div>
-      </div>
-    </template>
-  </draggable>
-  <!-- <draggable v-model="tasks" tag="div" :move="checkMove" item-key="name">
-    <template #item="{ element: task }">
-      <div
-        class="bg-pink-3"
-        style="width: 50%; margin: auto; margin-bottom: 5px"
-      >
-        {{ task.taskname }}
-      </div>
-    </template>
-  </draggable> -->
+
+  <div class="scrollable">
+    <TaskComponent
+      v-for="task in tasks"
+      :key="task.id"
+      :task="task"
+      @delete="remove(task)"
+      @edit="edit($event)"
+    ></TaskComponent>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, toRef, computed, reactive } from 'vue';
+import { ref, Ref, watch, onMounted, toRef, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import TaskComponent from 'src/components/TaskComponent.vue';
 import axios from 'axios';
 import { Task } from 'src/types/types';
 import dayjs from 'dayjs';
 import parsePlugin from 'dayjs-parser';
-import draggable from 'vuedraggable';
 
 dayjs.extend(parsePlugin);
 dayjs.locale('de');
@@ -341,9 +326,7 @@ async function addNewTask(): Promise<void> {
   const res = await axios.post('/addtask', { task });
   task.id = res.data.insertId;
 
-  console.log(task);
   tasks.value.push(task);
-  console.log(tasks.value);
   taskCount.value++;
 }
 
@@ -368,9 +351,7 @@ function orderBy(by: number) {
 function getPrio(priority: string): number {
   let prio: number =
     {
-      Hoch: 3,
-      Mittel: 2,
-      Niedrig: 1,
+      Ja: 1,
     }[priority] ?? 0;
 
   return prio;
@@ -391,11 +372,6 @@ async function changeList(list: string): Promise<void> {
     return el.taskname == editTask.value.taskname;
   });
   tasks.value.splice(i, 1);
-}
-
-function checkMove(e: any): void {
-  window.console.log('Future index: ' + e.draggedContext.futureIndex);
-  console.log(tasks.value);
 }
 </script>
 

@@ -1,19 +1,5 @@
 <template>
   <div class="taskbox" :style="borderColor(task.priority)">
-    <q-btn
-      color="#db7093"
-      icon="delete"
-      flat
-      @click="remove"
-      class="float-right"
-    ></q-btn>
-    <q-btn
-      @click="editTask()"
-      color="#db7093"
-      icon="edit"
-      flat
-      class="float-right"
-    ></q-btn>
     <div v-if="!editMode" style="font-size: 150%">{{ task.listname }}</div>
     <div v-if="editMode">
       <q-input

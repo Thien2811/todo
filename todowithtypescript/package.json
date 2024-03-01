@@ -24,6 +24,7 @@
     "uuid": "^9.0.1",
     "vue": "^3.0.0",
     "vue-axios": "^3.5.2",
+    "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.2.5",
     "vuedraggable": "^4.1.0"
   },
