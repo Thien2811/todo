@@ -1,6 +1,6 @@
 <template>
   <div style="margin: auto; width: 20%; margin-top: 10px">
-    <div style="margin: auto">
+    <div class="q-mt-lg">
       <q-input
         v-model="username"
         standout
@@ -69,11 +69,10 @@ async function loginSuccess() {
       },
       { withCredentials: true }
     );
-    console.log(user.data);
     router.push({ path: '/duetoday' });
-    Notify.create('passt');
+    Notify.create('Login erfolgreich');
   } catch (e) {
-    Notify.create('nein');
+    Notify.create('Falsche Anmeldedaten');
   }
 }
 </script>

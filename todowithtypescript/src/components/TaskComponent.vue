@@ -41,6 +41,26 @@
       <div style="font-size: 150%">
         <span class="q-mr-sm"
           >{{ task.taskname }}
+          <span v-if="task.description.length > 0">
+            <q-btn
+              v-if="showDesc == true"
+              icon="arrow_drop_down"
+              size="60%"
+              flat
+              style="padding-left: 3px; padding-right: 0"
+              @click="showDesc = false"
+              @click.stop
+            ></q-btn>
+            <q-btn
+              v-if="showDesc == false"
+              icon="arrow_drop_up"
+              size="60%"
+              flat
+              style="padding-left: 3px; padding-right: 0"
+              @click="showDesc = true"
+              @click.stop
+            ></q-btn>
+          </span>
           <q-btn
             color="#db7093"
             icon="delete"
@@ -49,6 +69,9 @@
             @click="remove"
             class="float-right"
           ></q-btn>
+          <div v-if="showDesc == false" style="font-size: 60%">
+            {{ task.description }}
+          </div>
           <q-btn
             v-if="task.progressnumber == 100"
             color="#db7093"
@@ -57,8 +80,8 @@
             @click.stop
             @click="confirm = true"
             class="float-right"
-          ></q-btn
-        ></span>
+          ></q-btn>
+        </span>
       </div>
 
       <div>
@@ -79,8 +102,8 @@
           <span class="q-ml-sm" style="color: black"
             >Dein Fortschritt ist auf 100%. Möchtest du deine Task
             abschließen?</span
-          > </q-card-section
-        >Privat
+          >
+        </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat label="Nein" color="#fff0f5" v-close-popup />
@@ -107,6 +130,7 @@ const props = defineProps(['task']);
 const task = toRef<Task>(props.task);
 const confirm = ref<boolean>(false);
 const showTask = ref<number>(0);
+const showDesc = ref<boolean>(true);
 
 const emits = defineEmits(['delete', 'edit']);
 
@@ -114,17 +138,6 @@ async function confirmProgress() {
   showTask.value = 100;
   await axios.post('/updateprio', { taskname: task.value.taskname });
 }
-
-// function borderColor(priority: string): string {
-//   let prio: string =
-//     {
-//       Hoch: 'border: 5px solid red;',
-//       Mittel: 'border: 5px solid orange;',
-//       Niedrig: 'border: 5px solid green;',
-//     }[priority] ?? 'border: 3px solid white;';
-
-//   return prio;
-// }
 
 async function remove() {
   await axios.delete(`/task/${task.value.id}`);

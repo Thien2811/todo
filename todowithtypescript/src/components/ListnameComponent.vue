@@ -3,7 +3,8 @@
     <div class="inline bg-amber rounded-borders" style="max-width: 300px">
       <div
         v-if="!editMode"
-        class="fit bg-pink-3 flex flex-center text-center non-selectable q-pa-md"
+        class="fit flex flex-center text-center non-selectable q-pa-md"
+        :style="getComponentBackground(hex)"
       >
         {{ list.listname }}
       </div>
@@ -20,8 +21,21 @@
               >Listennamen bearbeiten</q-item-section
             >
           </q-item>
+          <q-item clickable v-close-popup>
+            <q-item-section @click="colorpalette = !colorpalette"
+              >Farbe ändern</q-item-section
+            >
+          </q-item>
         </q-list>
       </q-menu>
+
+      <q-dialog v-model="colorpalette">
+        <q-card style="margin: auto">
+          <q-card-section>
+            <q-color v-model="hex" no-header-tabs class="my-picker"></q-color>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
     </div>
     <q-input
       v-if="editMode"
@@ -36,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef } from 'vue';
+import { ref, toRef, watch } from 'vue';
 
 import { useRouter } from 'vue-router';
 
@@ -47,6 +61,12 @@ const list = toRef(props.list);
 const emit = defineEmits(['delete']);
 const editMode = ref<boolean>(false);
 const router = useRouter();
+const colorpalette = ref<boolean>(false);
+const hex = ref<string>('#FF00FF');
+
+watch(hex, (newColor) => {
+  console.log(newColor);
+});
 
 async function removeList(searchValue: string): Promise<void> {
   emit('delete', searchValue);
@@ -69,6 +89,10 @@ async function editListname() {
       listname: props.list.listname,
     });
   }
+}
+
+function getComponentBackground(color: string): string {
+  return `background-color: ${color}`;
 }
 </script>
 

@@ -9,13 +9,11 @@
             >{{ location }} ,
             {{ new Date().toLocaleString('de').split(',')[0] }} , {{ date }} ,
             {{ temperatur }}°C
-            <!-- <q-icon name="sunny"></q-icon>
-          <q-icon name="umbrella"></q-icon>
-          <q-icon name="air"></q-icon>
-          <q-icon style="width: 500px" name="partly_cloudy_day"></q-icon> -->
+            <q-icon :name="getIcon(icon)"></q-icon>
           </q-toolbar-title>
         </div>
         <q-btn class="float-right" icon="download" @click="download"></q-btn>
+        <q-btn icon="settings" @click="settingsTab = !settingsTab"></q-btn>
         <q-btn
           v-if="currentPage != ''"
           class="float-right"
@@ -34,16 +32,23 @@
     >
       <div style="display: flex; flex-direction: column">
         <div class="q-pa-md"></div>
-        <div class="permlist bg-pink-3 text-center" @click="loadDueTodayTask">
+        <div class="permlist bg-pink-2 text-center" @click="loadDueTodayTask">
+          <q-icon name="today" style="font-size: 140%"></q-icon>
           Heute
         </div>
-        <div class="permlist bg-pink-3 text-center" @click="loadListAtDate">
-          7-Tage-Vorschau
+        <div class="permlist bg-pink-2 text-center" @click="loadListAtDate">
+          <q-icon name="filter_7" style="font-size: 140%"></q-icon>
+
+          7-Tage
         </div>
-        <div class="permlist bg-pink-3 text-center" @click="loadTimeline">
+        <div class="permlist bg-pink-2 text-center" @click="loadTimeline">
+          <q-icon name="clear_all" style="font-size: 140%"></q-icon>
+
           Alle Tasks
         </div>
-        <div class="permlist bg-pink-3 text-center" @click="loadFinishedTask">
+        <div class="permlist bg-pink-2 text-center" @click="loadFinishedTask">
+          <q-icon name="done_all" style="font-size: 140%"></q-icon>
+
           Abgeschlossen
         </div>
 
@@ -104,6 +109,45 @@
       </div>
     </q-drawer>
 
+    <q-dialog v-model="settingsTab">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Einstellungen</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Ändere die Farben
+          <div>
+            Grün
+            <q-btn flat
+              ><span class="dot" style="background-color: green"></span
+            ></q-btn>
+          </div>
+          <div>
+            Schwarz
+            <q-btn flat
+              ><span class="dot" style="background-color: black"></span
+            ></q-btn>
+          </div>
+          <div>
+            Blau
+            <q-btn flat
+              ><span class="dot" style="background-color: blue"></span
+            ></q-btn>
+          </div>
+          <div>
+            Rot
+            <q-btn flat
+              ><span class="dot" style="background-color: red"></span
+            ></q-btn>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="pink-4" v-close-popup />
+        </q-card-actions> </q-card
+    ></q-dialog>
+
     <q-page-container>
       <q-page>
         <router-view />
@@ -135,7 +179,9 @@ const currentPage = ref<string>('');
 const location = ref<string>('');
 const temperatur = ref<string>('');
 const date = ref(new Date().toLocaleString('de'));
-// const icon = ref<string>('');
+const icon = ref<string>('');
+const weathercondition = ref<string>('');
+const settingsTab = ref<boolean>(false);
 
 onMounted(async () => {
   const res = await axios.get('getlistnames');
@@ -146,12 +192,14 @@ onMounted(async () => {
   const weatherdata = await fetch(
     'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Schwabm%C3%BCnchen?unitGroup=metric&key=WNWVR6D2K56NSY5WKNVV988KS&contentType=json'
   ).then((res) => res.json());
-
   location.value = weatherdata.address;
   temperatur.value = weatherdata.currentConditions.temp;
+  weathercondition.value = weatherdata.currentConditions.conditions;
 
-  // const keywords = weatherdata.currentConditions.conditions.split(' ');
-  // console.log(keywords);
+  const weather = await axios.post('/getweatherdata', {
+    condition: weathercondition.value,
+  });
+  icon.value = weather.data;
 
   setInterval(() => {
     date.value = new Date()
@@ -186,6 +234,25 @@ watch(useRouter().currentRoute, () => {
       break;
   }
 });
+
+function getIcon(symbol: string) {
+  let sym =
+    {
+      cloud: 'cloud',
+      water_drop: 'water_drop',
+      ac_unit: 'ac_unit',
+      foggy: 'foggy',
+      cloudy_snowing: 'cloudy_snowing',
+      tornado: 'tornado',
+      bolt: 'bolt',
+      severe_cold: 'severe_cold',
+      air: 'air',
+      snowing: 'snowing',
+      thunderstorm: 'thunderstorm',
+    }[symbol] ?? 'sunny';
+
+  return sym;
+}
 
 async function addNewList(): Promise<void> {
   lists.value.push({ uuid: uuidv4(), listname: listname.value });
@@ -300,8 +367,15 @@ aside.q-drawer.q-drawer--left.q-drawer--standard {
 }
 
 .scrolling-container {
-  width: 400px; /* Breite des Containers anpassen */
+  width: 500px; /* Breite des Containers anpassen */
   margin-right: 10px;
   overflow: hidden; /* Versteckt den Text, der über die Grenzen hinausgeht */
+}
+
+.dot {
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  display: inline-block;
 }
 </style>

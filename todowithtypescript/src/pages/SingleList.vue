@@ -98,9 +98,13 @@
                   transition-show="scale"
                   transition-hide="scale"
                 >
-                  <q-date v-model="editTask.datum" mask="DD.MM.YYYY">
+                  <q-date
+                    v-model="editTask.datum"
+                    mask="DD.MM.YYYY"
+                    color="pink-3"
+                  >
                     <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
+                      <q-btn v-close-popup label="Close" color="pink-3" flat />
                     </div>
                   </q-date>
                 </q-popup-proxy>

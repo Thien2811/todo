@@ -1,7 +1,6 @@
 <template>
-  <div>Registrieren</div>
-  <div class="containerr">
-    <div>
+  <div class="container">
+    <div class="q-mt-lg">
       <q-input
         v-model="newUsername"
         standout
@@ -10,7 +9,7 @@
         label="Benutzername"
       ></q-input>
     </div>
-    <div>
+    <div class="q-mt-lg">
       <q-input
         label="Passwort"
         bg-color="white"
@@ -28,7 +27,7 @@
         </template>
       </q-input>
     </div>
-    <div>
+    <div class="q-mt-lg">
       <q-input
         label="Passwort wiederholen"
         bg-color="white"
@@ -47,21 +46,24 @@
       </q-input>
     </div>
 
-    <div>
-      <q-btn label="Registrieren" color="primary" @click="register"> </q-btn>
+    <div class="q-mt-lg">
+      <q-btn label="Registrieren" color="pink-4" @click="register"> </q-btn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
+import { useRouter } from 'vue-router';
+import { Notify } from 'quasar';
 
 type User = {
   username: string;
   password: string;
 };
 
+const router = useRouter();
 const newUsername = ref<string>('');
 const newPassword = ref<string>('');
 const checkPassword = ref<string>('');
@@ -75,14 +77,29 @@ async function register() {
       username: newUsername.value,
       password: newPassword.value,
     });
-    await axios.post('/register', {
-      user: users.value.splice(-1) ?? users.value,
-    });
-    alert('Registrieren erfolgreich');
+    try {
+      await axios.post('/register', {
+        user: users.value.splice(-1) ?? users.value,
+      });
+      Notify.create('Registrieren erfolgreich!');
+    } catch (e) {
+      if (!isAxiosError(e)) throw e;
+      if (e.response?.status === 409) {
+        Notify.create('Benutzername bereits in Verwendung!');
+      } else {
+        Notify.create('Es gab einen Fehler beim Registrieren!');
+      }
+    }
+    router.push('/');
   } else {
     alert('Passwörter stimmen nicht überein');
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.container {
+  width: 20%;
+  margin: auto;
+}
+</style>
