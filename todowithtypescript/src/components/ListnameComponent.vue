@@ -4,7 +4,7 @@
       <div
         v-if="!editMode"
         class="fit flex flex-center text-center non-selectable q-pa-md"
-        :style="getComponentBackground(hex)"
+        :style="backgroundStyle"
       >
         {{ list.listname }}
       </div>
@@ -32,7 +32,12 @@
       <q-dialog v-model="colorpalette">
         <q-card style="margin: auto">
           <q-card-section>
-            <q-color v-model="hex" no-header-tabs class="my-picker"></q-color>
+            <q-color
+              v-model="list.hex"
+              no-header-tabs
+              class="my-picker"
+              @change="saveColor"
+            ></q-color>
           </q-card-section>
         </q-card>
       </q-dialog>
@@ -50,23 +55,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch } from 'vue';
+import { ref, toRef, computed } from 'vue';
 
 import { useRouter } from 'vue-router';
 
 import axios from 'axios';
 
+type List = {
+  uuid: string;
+  hex: string;
+  listname: string;
+};
+
 const props = defineProps(['list']);
-const list = toRef(props.list);
+const list = toRef<List>(props.list);
 const emit = defineEmits(['delete']);
 const editMode = ref<boolean>(false);
 const router = useRouter();
 const colorpalette = ref<boolean>(false);
-const hex = ref<string>('#FF00FF');
 
-watch(hex, (newColor) => {
-  console.log(newColor);
-});
+async function saveColor() {
+  await axios.post('/color', { uuid: list.value.uuid, hex: list.value.hex });
+}
 
 async function removeList(searchValue: string): Promise<void> {
   emit('delete', searchValue);
@@ -91,9 +101,9 @@ async function editListname() {
   }
 }
 
-function getComponentBackground(color: string): string {
-  return `background-color: ${color}`;
-}
+const backgroundStyle = computed(() => {
+  return `background-color: ${list.value.hex}`;
+});
 </script>
 
 <style scoped>

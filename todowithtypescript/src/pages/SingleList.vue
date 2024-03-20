@@ -68,7 +68,7 @@
           ></q-input>
         </div>
         <div class="drawerelement">
-          <div>
+          <!-- <div>
             <q-select
               class="input"
               standout
@@ -76,6 +76,20 @@
               :options="users"
               label="Zugehörige Person"
               filled
+            />
+          </div> -->
+          <div>
+            <!-- <q-badge color="secondary" class="q-mb-md">
+              Model: {{ editTask.user }}
+            </q-badge> -->
+
+            <q-select
+              filled
+              v-model="editTask.user"
+              multiple
+              :options="users"
+              use-chips
+              label="Zugehörige Person"
             />
           </div>
           <div class="q-mt-md">
@@ -215,14 +229,27 @@ const uuid: string = route.params.uuid?.toString() ?? '';
 const tasks = ref<Task[]>([]);
 const taskname: Ref<string> = ref('');
 const description: Ref<string> = ref('');
-const taggedUser: Ref<string> = ref('Zugehörige Person');
+const taggedUser: Ref<string[]> = ref([]);
 const date = ref<string>('');
 const priority: Ref<string> = ref('Priorität');
 const prompt = ref<boolean>(false);
 const taskCount = ref<number>();
 const listnames = ref<string[]>([]);
-
-const users: string[] = ['Thien', 'Daniel', 'Andi'];
+const users: string[] = [
+  'Thien',
+  'Daniel R.',
+  'Andi',
+  'Nicole',
+  'Kathi',
+  'Sebi',
+  'Daniel M.',
+  'Marc',
+  'Vanessa',
+  'Christopher',
+  'Chris',
+  'Elmar',
+  'Domi',
+];
 const prio: string[] = ['Ja', 'Nein'];
 const drawerRight = ref<boolean>(false);
 let editTask = ref<Task>({
@@ -234,7 +261,7 @@ let editTask = ref<Task>({
   progress: 0,
   tags: [],
   taskname: '',
-  user: '',
+  user: [],
   uuid: '',
   progressnumber: 0,
 });
@@ -262,6 +289,9 @@ async function saveTask() {
   drawerRight.value = false;
 }
 
+/**
+ * Beim Laden der Seite werden die Listen aus der Datenbank abgerufengit clone git@bitbucket.org:azubikueche/kpi.git
+ */
 onMounted(async () => {
   loadTask();
   const listname = await axios.get('/getlistnames');
@@ -284,6 +314,9 @@ watch(useRouter().currentRoute, async () => {
 
 const getTaskAmount = computed(() => tasks.value.length);
 
+/**
+ * Funktion, die die Tasks aus der Datenbank abruft
+ */
 async function loadTask() {
   const url = route.params.listname ?? '';
   const res = await axios.post('/gettasks', {
@@ -300,6 +333,9 @@ async function loadTask() {
   }
 }
 
+/**
+ * Neue Task hinzufügen
+ */
 async function addNewTask(): Promise<void> {
   const dateString = taskname.value.split('@')[1];
   const name = taskname.value.split('#')[0];
@@ -334,7 +370,12 @@ async function addNewTask(): Promise<void> {
   taskCount.value++;
 }
 
-function orderBy(by: number) {
+/**
+ * Funktion zum Sortieren von allen Tasks
+ * @param {number} by Zahl eingeben entsprechend der Sortiermethode
+ * @returns {void}
+ */
+function orderBy(by: number): void {
   if (by === 0) {
     tasks.value = tasks.value.sort(
       (a: Task, b: Task) => getPrio(b.priority) - getPrio(a.priority)
@@ -352,6 +393,11 @@ function orderBy(by: number) {
   }
 }
 
+/**
+ * Funktion, um die Priorität sichtbar zu machen
+ * @param {string} priority Die ausgewählte Priorität
+ * @returns {number} Priorität als Zahl für die Sortierfunktion
+ */
 function getPrio(priority: string): number {
   let prio: number =
     {
@@ -361,12 +407,22 @@ function getPrio(priority: string): number {
   return prio;
 }
 
+/**
+ * Task löschen
+ * @param {Task} task Task, die gelöscht werden soll
+ * @returns {void}
+ */
 function remove(task: Task): void {
   const index = tasks.value.findIndex((el) => el.id === task.id);
   tasks.value.splice(index, 1);
   taskCount.value--;
 }
 
+/**
+ * Funktion zum Verschieben der Task in eine andere Liste
+ * @param {string} list Liste, wo die Task hingeschoben werden soll
+ * @returns {void}
+ */
 async function changeList(list: string): Promise<void> {
   await axios.post('/changelist', {
     listname: list,

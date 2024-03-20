@@ -102,6 +102,7 @@
               v-for="list of lists"
               :key="list.uuid"
               :list="list"
+              :background="list.hex"
               @delete="removeList(list.uuid)"
             ></ListnameComponent>
           </VueDraggableNext>
@@ -166,6 +167,7 @@ import { useRouter, useRoute } from 'vue-router';
 
 type List = {
   uuid: string;
+  hex: string;
   listname: string;
 };
 
@@ -255,7 +257,11 @@ function getIcon(symbol: string) {
 }
 
 async function addNewList(): Promise<void> {
-  lists.value.push({ uuid: uuidv4(), listname: listname.value });
+  lists.value.push({
+    uuid: uuidv4(),
+    listname: listname.value,
+    hex: '#f8bbd0',
+  });
   await axios.post('/addlist', { list: lists.value.slice(-1) ?? lists.value });
 }
 

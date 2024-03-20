@@ -3,7 +3,7 @@ export type Task = {
   listname: string;
   taskname: string;
   description: string;
-  user: string;
+  user: string[];
   datum: string;
   priority: string;
   uuid: string;
